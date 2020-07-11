@@ -2,13 +2,18 @@ package edu.pdx.agileteam7;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.elasticbeanstalk.model.SystemStatus;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 
+import javax.sound.midi.SysexMessage;
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.util.*;
+import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -17,58 +22,61 @@ import java.util.*;
  */
 public class App 
 {
-    public static Bucket getBucket(String bucket_name) {
-        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.DEFAULT_REGION).build();
-        Bucket named_bucket = null;
-        List<Bucket> buckets = s3.listBuckets();
-        for (Bucket b : buckets) {
-            if (b.getName().equals(bucket_name)) {
-                named_bucket = b;
-            }
-        }
-        return named_bucket;
-    }
 
-    public static Bucket createBucket(String bucket_name) {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIATB55VFIMW3232HBV", "+CR/2rjBcZXAkOBDUN5zo/DhNBK6Phyy1TtQLtEc");
-        AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+    public static String AWS_ACCESS_KEYS = "";
+    public static String AWS_SECRET_KEYS = "";
+    public static Bucket currentBucket;
 
-        Bucket b = null;
-        if (s3.doesBucketExistV2(bucket_name)) {
-            System.out.format("Bucket %s already exists.\n", bucket_name);
-            b = getBucket(bucket_name);
-        } else {
-            try {
-                b = s3.createBucket(bucket_name);
-            } catch (AmazonS3Exception e) {
-                System.err.println(e.getErrorMessage());
-            }
-        }
-        return b;
-    }
 
     public static void main(String[] args) {
         final String USAGE = "\n" +
-                "CreateBucket - create an S3 bucket\n\n" +
-                "Usage: CreateBucket <bucketname>\n\n" +
-                "Where:\n" +
-                "  bucketname - the name of the bucket to create.\n\n" +
-                "The bucket name must be unique, or an error will result.\n";
+                "Commands \n" +
+                "q: to quit\n" +
+                "cb: to create new bucket\n" +
+                "gb: to get a bucket\n";
 
-        if (args.length < 1) {
-            System.out.println(USAGE);
-            System.exit(1);
+        // Asks for user input
+        String newestCommand = "";
+        Scanner myObj = new Scanner(System.in);
+
+        System.out.println("Please enter access key: ");
+        AWS_ACCESS_KEYS = myObj.nextLine();
+
+        System.out.println("Please enter secret key: ");
+        AWS_SECRET_KEYS = myObj.nextLine();
+
+        // Checks for valid AWS credentials
+        try {
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+        } catch (Exception e) {
+            System.out.println("Login Failed: Please enter valid Access and Secret Keys");
         }
 
-        String bucket_name = args[0];
-
-        System.out.format("\nCreating S3 bucket: %s\n", bucket_name);
-        Bucket b = createBucket(bucket_name);
-        if (b == null) {
-            System.out.println("Error creating bucket!\n");
-        } else {
-            System.out.println("Done!\n");
+        // Main driver that checks for user commands
+        while(true) {
+            try {
+                System.out.println(USAGE);
+                newestCommand = myObj.nextLine();
+                System.out.println(newestCommand);
+                if (newestCommand.equals("q")) {
+                    System.out.println("Goodbye");
+                    break;
+                } else if (newestCommand.equals("cb")) {
+                    System.out.println("Please enter a bucket name to create: ");
+                    String bucketName = myObj.nextLine();
+                    currentBucket = Buckets.createBucket(bucketName);
+                } else if (newestCommand.equals("gb")) {
+                    System.out.println("Please enter a bucket name to get: ");
+                    String bucketName = myObj.nextLine();
+                    currentBucket = Buckets.getBucket(bucketName);
+                } else {
+                    System.out.println("Please enter a valid command");
+                }
+            } catch (Exception a) {
+                System.out.println("Please enter a valid command");
+            }
         }
+
     }
 
 }
