@@ -52,8 +52,19 @@ public class App
             System.out.println("Login Failed: Please enter valid Access and Secret Keys");
         }
 
+
+        int callCounts = 0;
+
         // Main driver that checks for user commands
         while(true) {
+
+            callCounts++;
+
+            // Exit after 25 calls
+            if(callCounts == 25) {
+                return;
+            }
+
             try {
                 System.out.println(USAGE);
                 newestCommand = myObj.nextLine();
