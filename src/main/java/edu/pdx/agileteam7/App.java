@@ -97,7 +97,9 @@ public class App
 
         System.out.format("Objects in bucket %s:\n", bucketName);
         try {
-            final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
+            //final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+            AmazonS3Client s3 = new AmazonS3Client(awsCreds);
             ListObjectsV2Result result = s3.listObjectsV2(bucketName);
             List<S3ObjectSummary> objects = result.getObjectSummaries();
             for (S3ObjectSummary os : objects) {
