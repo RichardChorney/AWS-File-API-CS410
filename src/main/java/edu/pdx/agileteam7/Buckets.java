@@ -40,7 +40,7 @@ public class Buckets {
                 named_bucket = b;
             }
         }
-        System.out.println("Current bucket now points to bucket" + bucket_name);
+        System.out.println("Current bucket now points to bucket " + bucket_name);
 
         if(named_bucket == null) {
             System.out.println("Was not able to get to bucket. Currently bucket is null");
@@ -70,7 +70,7 @@ public class Buckets {
                 System.err.println(e.getErrorMessage());
             }
         }
-        System.out.println("Current bucket now points to bucket" + bucket_name);
+        System.out.println("Current bucket now points to bucket " + bucket_name);
         return b;
     }
 }

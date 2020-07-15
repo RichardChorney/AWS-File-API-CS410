@@ -2,12 +2,15 @@ package edu.pdx.agileteam7;
 
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.devicefarm.model.ArgumentException;
 import com.amazonaws.services.elasticbeanstalk.model.SystemStatus;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import javax.sound.midi.SysexMessage;
 import javax.swing.plaf.synth.SynthTextAreaUI;
@@ -80,6 +83,7 @@ public class App
                     System.out.println("Please enter a bucket name to get: ");
                     String bucketName = myObj.nextLine();
                     currentBucket = Buckets.getBucket(bucketName);
+                    listObjects(bucketName);
                 } else {
                     System.out.println("Please enter a valid command");
                 }
@@ -87,7 +91,24 @@ public class App
                 System.out.println("Please enter a valid command");
             }
         }
-
     }
 
+    public static void listObjects(String bucketName){
+
+        System.out.format("Objects in bucket %s:\n", bucketName);
+        try {
+            final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
+            ListObjectsV2Result result = s3.listObjectsV2(bucketName);
+            List<S3ObjectSummary> objects = result.getObjectSummaries();
+            for (S3ObjectSummary os : objects) {
+                System.out.println("* " + os.getKey());
+            }
+        }
+        catch (Exception e){
+            throw new ArgumentException("ERROR");
+        }
+
+    }
 }
+
+
