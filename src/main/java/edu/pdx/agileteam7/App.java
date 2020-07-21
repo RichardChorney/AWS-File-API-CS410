@@ -33,7 +33,9 @@ public class App
                 "Commands \n" +
                 "q: to quit\n" +
                 "cb: to create new bucket\n" +
-                "gb: to get a bucket\n";
+                "gb: to get a bucket\n" +
+                "mkdir: make directory\n" +
+                "cp: copy directory\n";
 
         // Asks for user input
         String newestCommand = "";
@@ -80,6 +82,16 @@ public class App
                     System.out.println("Please enter a bucket name to get: ");
                     String bucketName = myObj.nextLine();
                     currentBucket = Buckets.getBucket(bucketName);
+                } else if (newestCommand.equals("mkdir")) {
+                    System.out.println("Please enter directory: ");
+                    String directoryName = myObj.nextLine();
+                    //call make directory function with directoryName input string;
+                } else if (newestCommand.equals("cp")) {
+                    System.out.println("Please enter directory source: ");
+                    String sourceName = myObj.nextLine();
+                    System.out.println("Please enter directory destination: ");
+                    String destName = myObj.nextLine();
+                    //call copy directory function with input strings;
                 } else {
                     System.out.println("Please enter a valid command");
                 }
