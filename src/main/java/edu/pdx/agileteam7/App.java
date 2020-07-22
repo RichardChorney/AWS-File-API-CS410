@@ -84,9 +84,11 @@ public class App
                     String bucketName = myObj.nextLine();
                     currentBucket = Buckets.getBucket(bucketName);
                 } else if (newestCommand.equals("mkdir")) {
+                    System.out.println("Please enter bucket: ");
+                    String bucketName = myObj.nextLine();
                     System.out.println("Please enter directory: ");
                     String directoryName = myObj.nextLine();
-                    Directory.mkdir(directoryName);
+                    Directory.mkdir(bucketName,directoryName);
                     //call make directory function with directoryName input string;
                 } else if (newestCommand.equals("cp")) {
                     System.out.println("Please enter source bucket name: ");
