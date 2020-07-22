@@ -50,6 +50,7 @@ public class App
         // Checks for valid AWS credentials
         try {
             BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+            System.out.println("entering credentials check ");
         } catch (Exception e) {
             System.out.println("Login Failed: Please enter valid Access and Secret Keys");
         }
@@ -85,12 +86,18 @@ public class App
                 } else if (newestCommand.equals("mkdir")) {
                     System.out.println("Please enter directory: ");
                     String directoryName = myObj.nextLine();
+                    Directory.mkdir(directoryName);
                     //call make directory function with directoryName input string;
                 } else if (newestCommand.equals("cp")) {
-                    System.out.println("Please enter directory source: ");
+                    System.out.println("Please enter source bucket name: ");
                     String sourceName = myObj.nextLine();
-                    System.out.println("Please enter directory destination: ");
-                    String destName = myObj.nextLine();
+                    System.out.println("Please enter source bucket directory: ");
+                    String sourceDirectory = myObj.nextLine();
+                    System.out.println("Please enter target bucket name: ");
+                    String targetName = myObj.nextLine();
+                    System.out.println("Please enter target bucket directory: ");
+                    String targetDirectory = myObj.nextLine();
+                    Directory.cp(sourceName,sourceDirectory,targetName, targetDirectory);
                     //call copy directory function with input strings;
                 } else {
                     System.out.println("Please enter a valid command");
