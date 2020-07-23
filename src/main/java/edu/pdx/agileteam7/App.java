@@ -55,9 +55,10 @@ public class App
 
         System.out.println("Please enter access key: ");
         AWS_ACCESS_KEYS = myObj.nextLine();
-
+//        AWS_ACCESS_KEYS = "AKIATB55VFIM6ETVL7AA";
         System.out.println("Please enter secret key: ");
         AWS_SECRET_KEYS = myObj.nextLine();
+//        AWS_SECRET_KEYS = "wPVnQ4S5RUuoZoZTOhFrOZnwyUu830/hck04oqD4";
 
         // Checks for valid AWS credentials
 
