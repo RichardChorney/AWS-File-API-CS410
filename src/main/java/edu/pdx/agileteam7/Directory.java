@@ -1,6 +1,7 @@
 package edu.pdx.agileteam7;
 
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
@@ -21,17 +22,25 @@ public class Directory {
      * @param sourceBucket
      * @param targetDirectory
      */
-    public static void mkdir(String sourceBucket, String targetDirectory) {
-        //Initializes S3 object which calls amazon functions.
-        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.DEFAULT_REGION).build();
-
-        //Copies root.txt into new .txt file that simulates directories in S3
-        //A the string before and including a forward slash in a file name
-        //acts as the directory in S3. file/location/text.txt -> turns into
-        // file/location/ directory
-        s3.copyObject(sourceBucket, "root.txt", sourceBucket, targetDirectory);
+    public static boolean mkdir(String sourceBucket, String targetDirectory) {
+        try {
+            //Validates AWS credentials then creates AWS object for AWS function calls.
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+            final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
 
 
+            //Uses s3.putObject which normally is used to upload to S3. Placing a null value
+            //in the local source directory argument creates a 0 size file. If the file ends
+            //with / it will be interpretted by S3 as a directory.
+            s3.putObject(sourceBucket,targetDirectory,"");
+
+            //Barks directory creation
+            System.out.println("Directory " + targetDirectory + " created.");
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     /**
@@ -43,7 +52,7 @@ public class Directory {
      * @param targetName
      * @param targetDirectory
      */
-    public static void cp(String sourceName, String sourceDirectory, String targetName, String targetDirectory) {
+    public static boolean cp(String sourceName, String sourceDirectory, String targetName, String targetDirectory) {
         //Initializes S3 object which calls amazon functions.
         final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.DEFAULT_REGION).build();
 
@@ -59,10 +68,6 @@ public class Directory {
 
 
         }
-
-
-
-//        s3.copyObject(sourceName, sourceDirectory, targetName, targetDirectory);
-
+        return true;
     }
 }

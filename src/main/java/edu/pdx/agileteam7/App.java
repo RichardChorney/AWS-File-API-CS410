@@ -93,13 +93,19 @@ public class App
                     currentBucket = Buckets.getBucket(bucketName);
                     listObjects(bucketName);
                 } else if (newestCommand.equals("mkdir")) {
+                    //User Input
                     System.out.println("Please enter bucket: ");
                     String bucketName = myObj.nextLine();
-                    System.out.println("Please enter directory: ");
+                    System.out.println("Please enter directory (must end with / ): ");
                     String directoryName = myObj.nextLine();
-                    Directory.mkdir(bucketName,directoryName);
-                    //call make directory function with directoryName input string;
+                    //Calls directory creation function
+                    boolean success = Directory.mkdir(bucketName,directoryName);
+                    //Barks failure on function returning an error
+                    if(!success){
+                        System.out.println("Directory creation failed.");
+                    }
                 } else if (newestCommand.equals("cp")) {
+                    //User Input
                     System.out.println("Please enter source bucket name: ");
                     String sourceName = myObj.nextLine();
                     System.out.println("Please enter source bucket directory: ");
@@ -108,8 +114,12 @@ public class App
                     String targetName = myObj.nextLine();
                     System.out.println("Please enter target bucket directory: ");
                     String targetDirectory = myObj.nextLine();
-                    Directory.cp(sourceName,sourceDirectory,targetName, targetDirectory);
-                    //call copy directory function with input strings;
+                    //Calls directory copying function
+                    boolean success = Directory.cp(sourceName,sourceDirectory,targetName, targetDirectory);
+                    //Barks failure on function returning an error
+                    if(!success){
+                        System.out.println("Directory creation failed.");
+                    }
                 } else {
                     System.out.println("Please enter a valid command");
                 }
