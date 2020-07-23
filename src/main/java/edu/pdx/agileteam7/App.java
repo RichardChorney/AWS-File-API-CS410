@@ -45,7 +45,9 @@ public class App
                 "Commands \n" +
                 "q: to quit\n" +
                 "cb: to create new bucket\n" +
-                "gb: to get a bucket\n";
+                "gb: to get a bucket\n" +
+                "mkdir: make directory\n" +
+                "cp: copy directory\n";
 
         // Asks for user input
         String newestCommand = "";
@@ -58,6 +60,7 @@ public class App
         AWS_SECRET_KEYS = myObj.nextLine();
 
         // Checks for valid AWS credentials
+
         if(!validateCredentials()){
             System.out.println("Login Failed: Please enter valid Access and Secret Keys");
         }
@@ -89,6 +92,24 @@ public class App
                     String bucketName = myObj.nextLine();
                     currentBucket = Buckets.getBucket(bucketName);
                     listObjects(bucketName);
+                } else if (newestCommand.equals("mkdir")) {
+                    System.out.println("Please enter bucket: ");
+                    String bucketName = myObj.nextLine();
+                    System.out.println("Please enter directory: ");
+                    String directoryName = myObj.nextLine();
+                    Directory.mkdir(bucketName,directoryName);
+                    //call make directory function with directoryName input string;
+                } else if (newestCommand.equals("cp")) {
+                    System.out.println("Please enter source bucket name: ");
+                    String sourceName = myObj.nextLine();
+                    System.out.println("Please enter source bucket directory: ");
+                    String sourceDirectory = myObj.nextLine();
+                    System.out.println("Please enter target bucket name: ");
+                    String targetName = myObj.nextLine();
+                    System.out.println("Please enter target bucket directory: ");
+                    String targetDirectory = myObj.nextLine();
+                    Directory.cp(sourceName,sourceDirectory,targetName, targetDirectory);
+                    //call copy directory function with input strings;
                 } else {
                     System.out.println("Please enter a valid command");
                 }
