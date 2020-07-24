@@ -30,6 +30,9 @@ public class App
 
 
     public static void main(String[] args) {
+
+
+
         final String USAGE = "\n" +
                 "Commands \n" +
                 "q: to quit\n" +
