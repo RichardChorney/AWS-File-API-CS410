@@ -47,7 +47,9 @@ public class App
                 "cb: to create new bucket\n" +
                 "gb: to get a bucket\n" +
                 "mkdir: make directory\n" +
-                "cp: copy directory\n";
+                "cp: copy directory\n" +
+                "adfl: add 1 file to bucket\n"+
+                "adMfl: adds mult. files\n";
 
         // Asks for user input
         String newestCommand = "";
@@ -121,7 +123,25 @@ public class App
                     if(!success){
                         System.out.println("Directory copy failed.");
                     }
-                } else {
+                } else if (newestCommand.equals("adfl")){
+                    System.out.println("Please enter bucket name we are working with: ");
+                    String BucketNAME = myObj.nextLine();
+                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS,BucketNAME);
+
+                    object.AddToBucket();
+
+
+                }else if(newestCommand.equals("adMfl")) {
+
+                    System.out.println("Please enter bucket name we are working with: ");
+                    String BucketNAME = myObj.nextLine();
+                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS,BucketNAME);
+                    System.out.println("Enter how many files you want to upload");
+                    int num = myObj.nextInt();
+
+                    object.AddMultToBucket(num);
+
+                }else {
                     System.out.println("Please enter a valid command");
                 }
             } catch (Exception a) {

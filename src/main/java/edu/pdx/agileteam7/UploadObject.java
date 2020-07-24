@@ -81,11 +81,11 @@ public class UploadObject {
             for (i = 0; i < count; i++) {
                 Scanner myObj = new Scanner(System.in);
                 System.out.println("Please enter filename should look something like \n" +
-                        "text.txt, for file number: " + i + 1);
+                        "text.txt  ");
                 FileName = myObj.nextLine();
 
                 System.out.println("Please enter filepath, should look something like \n" +
-                        "src/main/test.txt, for file number: " + i + 1);
+                        "src/main/test.txt  ");
                 FilePath = myObj.nextLine();
 
                 s3.putObject(this.Bucket, FileName, new File(FilePath));
