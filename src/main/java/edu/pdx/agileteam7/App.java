@@ -14,7 +14,7 @@ import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.util.*;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
-
+import java.io.File;
 
 /**
  * Hello world!
@@ -27,13 +27,14 @@ public class App
     public static String AWS_SECRET_KEYS = "";
     public static Bucket currentBucket;
 
-
     public static void main(String[] args) {
         final String USAGE = "\n" +
                 "Commands \n" +
                 "q: to quit\n" +
                 "cb: to create new bucket\n" +
-                "gb: to get a bucket\n";
+                "gb: to get a bucket\n" +
+                "list: list dictionaries and files in local machine\n" +
+                "rename: rename file in local machine\n";
 
         // Asks for user input
         String newestCommand = "";
@@ -80,7 +81,55 @@ public class App
                     System.out.println("Please enter a bucket name to get: ");
                     String bucketName = myObj.nextLine();
                     currentBucket = Buckets.getBucket(bucketName);
-                } else {
+                } else if(newestCommand.equals("list")) {
+                    System.out.print("Please enter the OS you're using");
+                    String os = myObj.nextLine();
+                    System.out.print("Please enter the name os the user: ");
+                    String name = myObj.nextLine();
+                    System.out.print("is there a specific directory/path name that you want to add?");
+                    String option = myObj.nextLine();
+                    String path = new String();
+                    if(option.substring(0,1).toUpperCase().equals("Y")) {
+                        System.out.print("Please enter the name of the path: ");
+                        path = myObj.nextLine();
+                    } else if(option.substring(0,1).toUpperCase().equals("N")) {
+                        path = "";
+                    } else {
+                        System.out.println("Please enter a valid answer");
+                    }
+
+                    System.out.print("Do you want to print all files in this path \n or all directories?");
+                    option = myObj.nextLine();
+                    if(option.toUpperCase().equals("FILES")) {
+                        FileHandling.fileList(os, name, path);
+                    } else {
+                        FileHandling.dirList(os, name, path);
+                    }
+                } else if(newestCommand.equals("rename")) {
+                    String path = new String();
+                    System.out.print("Please enter the OS you're using: ");
+                    String os = myObj.nextLine();
+                    System.out.print("Please enter the name os the user: ");
+                    String name = myObj.nextLine();
+                    System.out.print("is there a specific directory/path name that you want to add?");
+                    String option = myObj.nextLine();
+                    if(option.substring(0,1).toUpperCase().equals("Y")) {
+                        System.out.print("Please enter the name of the path: ");
+                        path = myObj.nextLine();
+                    } else if(option.substring(0,1).toUpperCase().equals("N")) {
+                        path = "";
+                    } else {
+                        System.out.println("Please enter a valid answer");
+                    }
+
+                    System.out.print("Please enter the file name: ");
+                    String old = myObj.nextLine();
+
+                    System.out.print("Please enter the new name: ");
+                    String newName = myObj.nextLine();
+                    FileHandling.rename(old, newName, os, name, path);
+
+                }else {
                     System.out.println("Please enter a valid command");
                 }
             } catch (Exception a) {
