@@ -74,26 +74,19 @@ public class Directory {
                 String targetString = null;
                 boolean match = false;
 
-                System.out.println("Object string is: " + matchString + " Target is: " + sourceDirectory);
-
                 //Matched which key name starts with input sourceDirectory string
                 match = matchString.startsWith(sourceDirectory, 0);
                 if(match){
-                    System.out.println(sourceDirectory + " Matched From: " + matchString);
 
                     //Processes targetString to have the file name at the end of the matchString, but
                     //to replace to prefix part of the string with the new targetDirectory string.
                     targetString = matchString.replaceFirst(sourceDirectory,targetDirectory);
                     s3.copyObject(sourceBucket,matchString,targetBucket,targetString);
                 }
-                else{
-                    System.out.println(sourceDirectory + " Not Matched From: " + matchString);
-                }
             }
 
-            //debug
-            String delimiter = bucketObjectList.getDelimiter();
-            System.out.println("Set delimiter is: " + delimiter);
+            //Barks directory copy success
+            System.out.println("Directory " + sourceDirectory + " copied to " + targetDirectory);
 
             return true;
         } catch (Exception e) {

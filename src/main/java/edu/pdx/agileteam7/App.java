@@ -109,17 +109,17 @@ public class App
                     //User Input
                     System.out.println("Please enter source bucket name: ");
                     String sourceName = myObj.nextLine();
-                    System.out.println("Please enter source bucket directory: ");
+                    System.out.println("Please enter source directory (must end with / ): ");
                     String sourceDirectory = myObj.nextLine();
                     System.out.println("Please enter target bucket name: ");
                     String targetName = myObj.nextLine();
-                    System.out.println("Please enter target bucket directory: ");
+                    System.out.println("Please enter target directory (must end with / ): ");
                     String targetDirectory = myObj.nextLine();
                     //Calls directory copying function
                     boolean success = Directory.cp(sourceName,sourceDirectory,targetName, targetDirectory);
-                    //Barks failure on function returning an error
+                    //Barks failure on cp returning an error
                     if(!success){
-                        System.out.println("Directory creation failed.");
+                        System.out.println("Directory copy failed.");
                     }
                 } else {
                     System.out.println("Please enter a valid command");
