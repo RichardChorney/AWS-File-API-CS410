@@ -1,16 +1,27 @@
 package edu.pdx.agileteam7;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.regions.Regions;
+import com.amazonaws.services.devicefarm.model.ArgumentException;
 import com.amazonaws.services.elasticbeanstalk.model.SystemStatus;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagement;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClientBuilder;
+import com.amazonaws.services.identitymanagement.model.ListAccessKeysRequest;
+import com.amazonaws.services.identitymanagement.model.ListAccessKeysResult;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.*;
 
 import javax.sound.midi.SysexMessage;
 import javax.swing.plaf.synth.SynthTextAreaUI;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
@@ -28,12 +39,15 @@ public class App
     public static Bucket currentBucket;
 
 
+
     public static void main(String[] args) {
         final String USAGE = "\n" +
                 "Commands \n" +
                 "q: to quit\n" +
                 "cb: to create new bucket\n" +
-                "gb: to get a bucket\n";
+                "gb: to get a bucket\n" +
+                "mkdir: make directory\n" +
+                "cp: copy directory\n";
 
         // Asks for user input
         String newestCommand = "";
@@ -41,17 +55,16 @@ public class App
 
         System.out.println("Please enter access key: ");
         AWS_ACCESS_KEYS = myObj.nextLine();
-
+//        AWS_ACCESS_KEYS = "AKIATB55VFIM6ETVL7AA";
         System.out.println("Please enter secret key: ");
         AWS_SECRET_KEYS = myObj.nextLine();
+//        AWS_SECRET_KEYS = "wPVnQ4S5RUuoZoZTOhFrOZnwyUu830/hck04oqD4";
 
         // Checks for valid AWS credentials
-        try {
-            BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
-        } catch (Exception e) {
+
+        if(!validateCredentials()){
             System.out.println("Login Failed: Please enter valid Access and Secret Keys");
         }
-
 
         int callCounts = 0;
 
@@ -64,7 +77,6 @@ public class App
             if(callCounts == 25) {
                 return;
             }
-
             try {
                 System.out.println(USAGE);
                 newestCommand = myObj.nextLine();
@@ -80,6 +92,35 @@ public class App
                     System.out.println("Please enter a bucket name to get: ");
                     String bucketName = myObj.nextLine();
                     currentBucket = Buckets.getBucket(bucketName);
+                    listObjects(bucketName);
+                } else if (newestCommand.equals("mkdir")) {
+                    //User Input
+                    System.out.println("Please enter bucket: ");
+                    String bucketName = myObj.nextLine();
+                    System.out.println("Please enter directory (must end with / ): ");
+                    String directoryName = myObj.nextLine();
+                    //Calls directory creation function
+                    boolean success = Directory.mkdir(bucketName,directoryName);
+                    //Barks failure on function returning an error
+                    if(!success){
+                        System.out.println("Directory creation failed.");
+                    }
+                } else if (newestCommand.equals("cp")) {
+                    //User Input
+                    System.out.println("Please enter source bucket name: ");
+                    String sourceName = myObj.nextLine();
+                    System.out.println("Please enter source directory (must end with / ): ");
+                    String sourceDirectory = myObj.nextLine();
+                    System.out.println("Please enter target bucket name: ");
+                    String targetName = myObj.nextLine();
+                    System.out.println("Please enter target directory (must end with / ): ");
+                    String targetDirectory = myObj.nextLine();
+                    //Calls directory copying function
+                    boolean success = Directory.cp(sourceName,sourceDirectory,targetName, targetDirectory);
+                    //Barks failure on cp returning an error
+                    if(!success){
+                        System.out.println("Directory copy failed.");
+                    }
                 } else {
                     System.out.println("Please enter a valid command");
                 }
@@ -87,7 +128,40 @@ public class App
                 System.out.println("Please enter a valid command");
             }
         }
-
     }
 
+    public static void listObjects(String bucketName){
+        System.out.format("Objects in bucket %s:\n", bucketName);
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
+        try {
+            //AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+
+            ListObjectsV2Result result = s3.listObjectsV2(bucketName);
+            List<S3ObjectSummary> objects = result.getObjectSummaries();
+            for (S3ObjectSummary os : objects) {
+                System.out.println("* " + os.getKey());
+            }
+        }
+        catch (Exception e){
+            throw new ArgumentException("ERROR");
+        }
+    }
+
+    public static boolean validateCredentials(){
+        try {
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+            final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
+            List<Bucket> buckets = s3.listBuckets();
+            System.out.println("Your Amazon S3 buckets are:");
+            for (Bucket b : buckets) {
+                System.out.println("* " + b.getName());
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
 }
+
+
