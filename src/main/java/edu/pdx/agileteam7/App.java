@@ -47,7 +47,9 @@ public class App
                 "cb: to create new bucket\n" +
                 "gb: to get a bucket\n" +
                 "mkdir: make directory\n" +
-                "cp: copy directory\n";
+                "cp: copy directory\n" +
+                "adfl: add 1 file to bucket\n"+
+                "adMfl: adds mult. files\n";
 
         // Asks for user input
         String newestCommand = "";
@@ -55,9 +57,10 @@ public class App
 
         System.out.println("Please enter access key: ");
         AWS_ACCESS_KEYS = myObj.nextLine();
-
+//        AWS_ACCESS_KEYS = "AKIATB55VFIM6ETVL7AA";
         System.out.println("Please enter secret key: ");
         AWS_SECRET_KEYS = myObj.nextLine();
+//        AWS_SECRET_KEYS = "wPVnQ4S5RUuoZoZTOhFrOZnwyUu830/hck04oqD4";
 
         // Checks for valid AWS credentials
         if(!validateCredentials()){
@@ -93,24 +96,52 @@ public class App
                     currentBucket = Buckets.getBucket(bucketName);
                     Buckets.listObjects(bucketName);
                 } else if (newestCommand.equals("mkdir")) {
+                    //User Input
                     System.out.println("Please enter bucket: ");
                     String bucketName = myObj.nextLine();
-                    System.out.println("Please enter directory: ");
+                    System.out.println("Please enter directory (must end with / ): ");
                     String directoryName = myObj.nextLine();
-                    Directory.mkdir(bucketName,directoryName);
-                    //call make directory function with directoryName input string;
+                    //Calls directory creation function
+                    boolean success = Directory.mkdir(bucketName,directoryName);
+                    //Barks failure on function returning an error
+                    if(!success){
+                        System.out.println("Directory creation failed.");
+                    }
                 } else if (newestCommand.equals("cp")) {
+                    //User Input
                     System.out.println("Please enter source bucket name: ");
                     String sourceName = myObj.nextLine();
-                    System.out.println("Please enter source bucket directory: ");
+                    System.out.println("Please enter source directory (must end with / ): ");
                     String sourceDirectory = myObj.nextLine();
                     System.out.println("Please enter target bucket name: ");
                     String targetName = myObj.nextLine();
-                    System.out.println("Please enter target bucket directory: ");
+                    System.out.println("Please enter target directory (must end with / ): ");
                     String targetDirectory = myObj.nextLine();
-                    Directory.cp(sourceName,sourceDirectory,targetName, targetDirectory);
-                    //call copy directory function with input strings;
-                } else {
+                    //Calls directory copying function
+                    boolean success = Directory.cp(sourceName,sourceDirectory,targetName, targetDirectory);
+                    //Barks failure on cp returning an error
+                    if(!success){
+                        System.out.println("Directory copy failed.");
+                    }
+                } else if (newestCommand.equals("adfl")){
+                    System.out.println("Please enter bucket name we are working with: ");
+                    String BucketNAME = myObj.nextLine();
+                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS,BucketNAME);
+
+                    object.AddToBucket();
+
+
+                }else if(newestCommand.equals("adMfl")) {
+
+                    System.out.println("Please enter bucket name we are working with: ");
+                    String BucketNAME = myObj.nextLine();
+                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS,BucketNAME);
+                    System.out.println("Enter how many files you want to upload");
+                    int num = myObj.nextInt();
+
+                    object.AddMultToBucket(num);
+
+                }else {
                     System.out.println("Please enter a valid command");
                 }
                 // If current bucket successfully created or retrieved.
