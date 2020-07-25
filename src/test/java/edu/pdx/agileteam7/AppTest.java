@@ -18,6 +18,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -39,6 +40,20 @@ public class AppTest
         App.AWS_ACCESS_KEYS = "blah";
         App.AWS_SECRET_KEYS = "blah";
         assertThat(App.validateCredentials(), equalTo(false));
+    }
+
+    //Tests whether a object is successfully downloaded
+    @Test
+    public void getObjectDownloads(){
+        App.AWS_ACCESS_KEYS = "AKIATB55VFIM6ETVL7AA";
+        App.AWS_SECRET_KEYS = "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";
+
+        App.getObject("test.txt", "tippet2");
+        File f = new File("test.txt");
+        assertThat(f.exists(), equalTo(true));
+        if(f.exists()){
+            f.delete();
+        }
     }
 
     //This test requires manually deleting autoTestFolder/ every time until

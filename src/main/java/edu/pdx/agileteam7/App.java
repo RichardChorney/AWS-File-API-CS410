@@ -151,7 +151,7 @@ public class App
                                 "b: return to the previous menu\n" +
                                 "ls: list the objects in the current bucket\n" +
                                 "go: Downloads the object to current directory\n" +
-                                "gm: Downloads multiple files");
+                                "gm: Downloads multiple objects\n");
                         newestCommand = myObj.nextLine();
                         if (newestCommand.equals("b")) {
                             break;
@@ -159,7 +159,7 @@ public class App
                         else if(newestCommand.equals("ls")){
                             Buckets.listObjects(currentBucket.getName());
                         }
-                        else if(newestCommand.equals("gf")){
+                        else if(newestCommand.equals("go")){
                             System.out.println("Please enter the name of the object");
                             String objectName = myObj.nextLine();
                             if(getObject(objectName, currentBucket.getName())){
