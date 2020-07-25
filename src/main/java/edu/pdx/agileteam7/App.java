@@ -26,6 +26,8 @@ public class App
     public static String AWS_ACCESS_KEYS = "";
     public static String AWS_SECRET_KEYS = "";
     public static Bucket currentBucket;
+    public static String name = new String();
+
 
     public static void main(String[] args) {
         final String USAGE = "\n" +
@@ -82,23 +84,24 @@ public class App
                     String bucketName = myObj.nextLine();
                     currentBucket = Buckets.getBucket(bucketName);
                 } else if(newestCommand.equals("list")) {
-                    System.out.print("Please enter the OS you're using");
+                    System.out.print("Please enter the OS you're using: ");
                     String os = myObj.nextLine();
-                    System.out.print("Please enter the name os the user: ");
+                    System.out.print("Please enter the name of the user: ");
                     String name = myObj.nextLine();
-                    System.out.print("is there a specific directory/path name that you want to add?");
+                    System.out.print("Are there other directories that you would like to add to the path? ");
                     String option = myObj.nextLine();
                     String path = new String();
                     if(option.substring(0,1).toUpperCase().equals("Y")) {
-                        System.out.print("Please enter the name of the path: ");
+                        System.out.print("Please enter the name of the directory" +
+                                "(if it's more than one directories ahead, please put a '/' afterwards): ");
                         path = myObj.nextLine();
                     } else if(option.substring(0,1).toUpperCase().equals("N")) {
                         path = "";
                     } else {
-                        System.out.println("Please enter a valid answer");
+                        System.out.println("Please enter a valid answer.");
                     }
 
-                    System.out.print("Do you want to print all files in this path \n or all directories?");
+                    System.out.print("Would you like to have all files or directories printed? ");
                     option = myObj.nextLine();
                     if(option.toUpperCase().equals("FILES")) {
                         FileHandling.fileList(os, name, path);
@@ -109,12 +112,13 @@ public class App
                     String path = new String();
                     System.out.print("Please enter the OS you're using: ");
                     String os = myObj.nextLine();
-                    System.out.print("Please enter the name os the user: ");
+                    System.out.print("Please enter the name of the user: ");
                     String name = myObj.nextLine();
-                    System.out.print("is there a specific directory/path name that you want to add?");
+                    System.out.print("Are there other directories that you would like to add to the path? ");
                     String option = myObj.nextLine();
                     if(option.substring(0,1).toUpperCase().equals("Y")) {
-                        System.out.print("Please enter the name of the path: ");
+                        System.out.print("Please enter the name of the directory" +
+                                "(if it's more than one directories ahead, please put a '/' afterwards): ");
                         path = myObj.nextLine();
                     } else if(option.substring(0,1).toUpperCase().equals("N")) {
                         path = "";

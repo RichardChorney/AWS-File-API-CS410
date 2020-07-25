@@ -37,7 +37,7 @@ public class FileHandling {
         String finalPath = os + name + path;
         //File old = new File("/mySample2.txt");
         File pathFile = new File(oldname);
-        System.out.println(pathFile.getPath());
+        //System.out.println(pathFile.getPath());
         System.out.println(finalPath);
 
         File oldName = new File(finalPath + "/" +  oldname);
@@ -97,16 +97,20 @@ public class FileHandling {
      */
     protected static void dirList(String os, String name, String path) {
         //String dirName= "/Users/rawahalsinan/";
+        String dirName = new String();
         if(os.substring(0,3).toUpperCase().equals("mac".toUpperCase())) {
              os = "Users";
+             dirName = "/" + os + "/" + name + "/" + path + "/";
         } else if(os.equals("windows")) {
-            os = "C:\\";
+            os = "C:";
+            dirName = os + "\\" + name + "\\" + path;
         } else {
             os = "/";
+            dirName = "/" + os + "/" + name + "/" + path + "/";
         }
 
-        System.out.print(os);
-        String dirName = "/" + os + "/" + name + "/" + path + "/";
+        System.out.println(dirName);
+        //String dirName = "/" + os + "/" + name + "/" + path + "/";
         File file = new File(dirName);
         if(file.isDirectory()) {
             System.out.println("Directories in " + dirName + ":");
