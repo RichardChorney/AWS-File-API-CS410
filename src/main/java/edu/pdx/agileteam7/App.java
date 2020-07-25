@@ -60,6 +60,7 @@ public class App
         // Checks for valid AWS credentials
         if(!validateCredentials()){
             System.out.println("Login Failed: Please enter valid Access and Secret Keys");
+            System.exit(1);
         }
 
         int callCounts = 0;
@@ -76,7 +77,6 @@ public class App
             try {
                 System.out.println(USAGE);
                 newestCommand = myObj.nextLine();
-                System.out.println(newestCommand);
                 if (newestCommand.equals("q")) {
                     System.out.println("Goodbye");
                     break;
@@ -88,31 +88,66 @@ public class App
                     System.out.println("Please enter a bucket name to get: ");
                     String bucketName = myObj.nextLine();
                     currentBucket = Buckets.getBucket(bucketName);
-                    listObjects(bucketName);
                 } else {
                     System.out.println("Please enter a valid command");
+                }
+                // If current bucket successfully created or retrieved.
+                if(currentBucket != null){
+                    while(true){
+                        System.out.println("\nEnter one of the following commands.\n" +
+                                "b: return to the previous menu\n" +
+                                "ls: list the objects in the current bucket\n" +
+                                "go: Downloads the object to current directory\n" +
+                                "gm: Downloads multiple files");
+                        newestCommand = myObj.nextLine();
+                        if (newestCommand.equals("b")) {
+                            break;
+                        }
+                        else if(newestCommand.equals("ls")){
+                            Buckets.listObjects(currentBucket.getName());
+                        }
+                        else if(newestCommand.equals("gf")){
+                            System.out.println("Please enter the name of the object");
+                            String objectName = myObj.nextLine();
+                            if(getObject(objectName, currentBucket.getName())){
+                                System.out.println("Object downloaded.");
+                            }
+                            else{
+                                System.out.println("Download failed");
+                            }
+                        }
+                        else if (newestCommand.equals("gm")){
+                            int numObjects = 0;
+                            System.out.println("Enter the number of objects to download");
+                            try{
+                                numObjects = Integer.parseInt(myObj.nextLine());
+                                if(numObjects <= 5){
+                                    for(int i = 0; i < numObjects; i++){
+                                        System.out.println("Please enter the name of the object");
+                                        String objectName = myObj.nextLine();
+                                        if(getObject(objectName, currentBucket.getName())){
+                                            System.out.println("Object downloaded.");
+                                        }
+                                        else{
+                                            System.out.println("Download failed");
+                                        }
+                                    }
+                                }
+                                else{
+                                    System.out.println("Max number of downloads is 5");
+                                }
+                            } catch (NumberFormatException e){
+                                System.out.println("Invalid number. Please enter a whole number <= 5");
+                            }
+                        }
+                        else{
+                            System.out.println("Please enter a valid command");
+                        }
+                    }
                 }
             } catch (Exception a) {
                 System.out.println("Please enter a valid command");
             }
-        }
-    }
-
-    public static void listObjects(String bucketName){
-        System.out.format("Objects in bucket %s:\n", bucketName);
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
-        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
-        try {
-            //AmazonS3Client s3 = new AmazonS3Client(awsCreds);
-
-            ListObjectsV2Result result = s3.listObjectsV2(bucketName);
-            List<S3ObjectSummary> objects = result.getObjectSummaries();
-            for (S3ObjectSummary os : objects) {
-                System.out.println("* " + os.getKey());
-            }
-        }
-        catch (Exception e){
-            throw new ArgumentException("ERROR");
         }
     }
 
@@ -121,11 +156,36 @@ public class App
             BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
             final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
             List<Bucket> buckets = s3.listBuckets();
-            System.out.println("Your Amazon S3 buckets are:");
+            System.out.println("\nYour Amazon S3 buckets are:");
             for (Bucket b : buckets) {
                 System.out.println("* " + b.getName());
             }
         } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean getObject(String objectName, String bucketName) {
+        System.out.format("Downloading %s from S3 bucket %s...\n", objectName, bucketName);
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
+        try {
+            S3Object o = s3.getObject(bucketName, objectName);
+            S3ObjectInputStream s3is = o.getObjectContent();
+            FileOutputStream fos = new FileOutputStream(new File(objectName));
+            byte[] read_buf = new byte[1024];
+            int read_len = 0;
+            while ((read_len = s3is.read(read_buf)) > 0) {
+                fos.write(read_buf, 0, read_len);
+            }
+            s3is.close();
+            fos.close();
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getErrorMessage());
+            return false;
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
             return false;
         }
         return true;
