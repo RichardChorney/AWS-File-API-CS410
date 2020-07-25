@@ -79,6 +79,7 @@ public class App
             try {
                 System.out.println(USAGE);
                 newestCommand = myObj.nextLine();
+                System.out.println(newestCommand);
                 if (newestCommand.equals("q")) {
                     System.out.println("Goodbye");
                     break;
@@ -90,7 +91,7 @@ public class App
                     System.out.println("Please enter a bucket name to get: ");
                     String bucketName = myObj.nextLine();
                     currentBucket = Buckets.getBucket(bucketName);
-                    listObjects(bucketName);
+                    Buckets.listObjects(bucketName);
                 } else if (newestCommand.equals("mkdir")) {
                     System.out.println("Please enter bucket: ");
                     String bucketName = myObj.nextLine();
@@ -172,12 +173,30 @@ public class App
         }
     }
 
+    public static void listObjects(String bucketName){
+        System.out.format("Objects in bucket %s:\n", bucketName);
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
+        try {
+            //AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+
+            ListObjectsV2Result result = s3.listObjectsV2(bucketName);
+            List<S3ObjectSummary> objects = result.getObjectSummaries();
+            for (S3ObjectSummary os : objects) {
+                System.out.println("* " + os.getKey());
+            }
+        }
+        catch (Exception e){
+            throw new ArgumentException("ERROR");
+        }
+    }
+
     public static boolean validateCredentials(){
         try {
             BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
             final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
             List<Bucket> buckets = s3.listBuckets();
-            System.out.println("\nYour Amazon S3 buckets are:");
+            System.out.println("Your Amazon S3 buckets are:");
             for (Bucket b : buckets) {
                 System.out.println("* " + b.getName());
             }
