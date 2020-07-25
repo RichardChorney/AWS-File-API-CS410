@@ -204,6 +204,10 @@ public class App
         }
     }
 
+    /**
+     * This method lists all of the objects in a bucket
+     * @param bucketName The name of the bucket to which to list objects from
+     */
     public static void listObjects(String bucketName){
         System.out.format("Objects in bucket %s:\n", bucketName);
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
@@ -222,6 +226,11 @@ public class App
         }
     }
 
+    /**
+     * A method to validate the credentials of the user. AWS doesn't provide a direct way to validate credentials.
+     * The only way is attempt an operation using the credentials such as listing buckets.
+     * @return returns true if able to list buckets and false if credentials were rejected.
+     */
     public static boolean validateCredentials(){
         try {
             BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
@@ -237,6 +246,12 @@ public class App
         return true;
     }
 
+    /**
+     * A method to download an object from a remote server
+     * @param objectName the name of the object to download
+     * @param bucketName the name of the bucket that the object is in
+     * @return returns whether the object was successfully downloaded or not
+     */
     public static boolean getObject(String objectName, String bucketName) {
         System.out.format("Downloading %s from S3 bucket %s...\n", objectName, bucketName);
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
