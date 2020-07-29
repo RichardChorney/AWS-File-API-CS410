@@ -1,17 +1,18 @@
 package edu.pdx.agileteam7;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.regions.Regions;
-import com.amazonaws.services.dynamodbv2.xspec.S;
+import com.amazonaws.services.devicefarm.model.ArgumentException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
-import com.amazonaws.SdkClientException;
 import java.util.List;
-import java.io.File;
-
 public class Buckets {
     /**
      * Function that checks AWS Access Keys and Secret Keys are valid
@@ -44,21 +45,14 @@ public class Buckets {
                 named_bucket = b;
             }
         }
-        System.out.println("Current bucket now points to bucket" + bucket_name);
 
         if (named_bucket == null) {
             System.out.println("Was not able to get to bucket. Currently bucket is null");
         }
+        else {
+            System.out.println("Current bucket now points to bucket " + bucket_name);
+        }
         return named_bucket;
-    }
-
-    public static Bucket renameFile(File oldName, File newName) {
-        File f1 = oldName;
-        File f2 = newName;
-        boolean b = f1.renameTo(newName);
-        System.out.println(oldName + " has been changed to " + f1);
-        System.out.println(b);
-        return null;
     }
 
     /**
@@ -83,7 +77,36 @@ public class Buckets {
                 System.err.println(e.getErrorMessage());
             }
         }
-        System.out.println("Current bucket now points to bucket" + bucket_name);
+        System.out.println("Current bucket now points to bucket " + bucket_name);
         return b;
+    }
+
+    public static void listObjects(String bucketName){
+        System.out.format("Objects in bucket %s:\n", bucketName);
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
+        try {
+            ListObjectsV2Result result = s3.listObjectsV2(bucketName);
+            List<S3ObjectSummary> objects = result.getObjectSummaries();
+            for (S3ObjectSummary os : objects) {
+                System.out.println("* " + os.getKey());
+            }
+        }
+        catch (Exception e){
+            throw new ArgumentException("ERROR");
+        }
+    }
+    public static void listBuckets(){
+        try {
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+            final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
+            List<Bucket> buckets = s3.listBuckets();
+            System.out.println("\nYour Amazon S3 buckets are:");
+            for (Bucket b : buckets) {
+                System.out.println("* " + b.getName());
+            }
+        } catch (Exception e) {
+            throw new ArgumentException("ERROR");
+        }
     }
 }

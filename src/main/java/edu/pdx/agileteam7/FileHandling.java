@@ -23,48 +23,73 @@ public class FileHandling {
      * @return true if success, otherwise false.
      * */
     public static boolean rename(String oldname, String newname, String os, String name, String path) {
-        if(os.substring(0,3).toUpperCase().equals("mac".toUpperCase())) {
-            os = "Users";
-        } else if(os.equals("windows")) {
+        if ((os.substring(0, 3).toUpperCase().equals("mac".toUpperCase()))){
+                os = "Users";
+        /*} else if(os.equals("windows")) {
             os = "C:\\";
+
         } else {
             os = "/";
+        }*/
+            os = "/" + os;
+            name = "/" + name;
+            path = "/" + path;
+
+            String finalPath = os + name + path;
+            //File old = new File("/mySample2.txt");
+            File pathFile = new File(oldname);
+            //System.out.println(pathFile.getPath());
+            System.out.println(finalPath);
+
+            File oldName = new File(finalPath + "/" + oldname);
+            File New = new File(newname);
+            File newName = new File(finalPath + "/" + New);
+            if (oldName.renameTo(newName)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if ((os.substring(0, 5).toUpperCase().equals("linux".toUpperCase()))
+        || (os.substring(0, 4).toUpperCase().equals("unix".toUpperCase()))
+        ){
+            os = "/";
+            name = "/" + name;
+            path = "/" + path;
+
+            String finalPath = os + name + path;
+            //File old = new File("/mySample2.txt");
+            File pathFile = new File(oldname);
+            //System.out.println(pathFile.getPath());
+            System.out.println(finalPath);
+
+            File oldName = new File(finalPath + "/" + oldname);
+            File New = new File(newname);
+            File newName = new File(finalPath + "/" + New);
+            if (oldName.renameTo(newName)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            os = "C:\\";
+
+            os = "\\" + os;
+            name = "\\" + name;
+            path = "\\" + path;
+
+            String finalPath = os + name + path;
+            File pathFile = new File(oldname);
+            System.out.println(finalPath);
+
+            File oldName = new File(finalPath + "\\" + oldname);
+            File New = new File(newname);
+            File newName = new File(finalPath + "\\" + New);
+            if (oldName.renameTo(newName)) {
+                return true;
+            } else {
+                return false;
+            }
         }
-        os = "/" + os;
-        name = "/" + name;
-        path = "/" + path;
-
-        String finalPath = os + name + path;
-        //File old = new File("/mySample2.txt");
-        File pathFile = new File(oldname);
-        //System.out.println(pathFile.getPath());
-        System.out.println(finalPath);
-
-        File oldName = new File(finalPath + "/" +  oldname);
-        File New = new File(newname);
-        File newName = new File(finalPath + "/"+ New);
-        if(oldName.renameTo(newName)) {
-            return true;
-        } else {return false;}
-        /*File obj = new File ("/Users/rawahalsinan/Desktop/mysample.txt");
-        File file = new File("mysample2.txt");
-        //String path = file.getAbsolutePath();
-        //System.out.println(path);
-        if(obj.renameTo(file)) {
-            System.out.println("success");
-        } else {
-            System.out.println("error.");
-        }*/
-/*        File o = new File("mySample.txt");
-        String path = o.getAbsolutePath();
-        File name = new File(path);
-
-        File newName = new File("mySample1.txt");
-        if(name.renameTo(newName)) {
-            System.out.print("Success");
-        } else {
-            System.out.print("err");
-        }*/
     }
 
     /**
@@ -83,10 +108,18 @@ public class FileHandling {
         }
 
         System.out.println("Files: \n");
-        File dir = new File("/" + os + "/" + name + "/" + path + "/");
-        File[] filesInDir = dir.listFiles();
-        for(File file : filesInDir) {
-            System.out.println(file.getName());
+        if((os.equals("Users")) || (os.equals("/"))) {
+            File dir = new File("/" + os + "/" + name + "/" + path + "/");
+            File[] filesInDir = dir.listFiles();
+            for(File file : filesInDir) {
+                System.out.println(file.getName());
+            }
+        } else if(os.equals("C:\\")) {
+            File dir = new File("\\" + os + "\\" + name + "\\" + path + "\\");
+            File[] filesInDir = dir.listFiles();
+            for(File file : filesInDir) {
+                System.out.println(file.getName());
+            }
         }
     }
 
@@ -96,7 +129,6 @@ public class FileHandling {
      * @param path path for the directory to list the directories in it
      */
     protected static void dirList(String os, String name, String path) {
-        //String dirName= "/Users/rawahalsinan/";
         String dirName = new String();
         if(os.substring(0,3).toUpperCase().equals("mac".toUpperCase())) {
              os = "Users";
@@ -119,12 +151,8 @@ public class FileHandling {
                 File f = new File(dirName + "" + str[i]);
                 if(f.isDirectory()) {
                     System.out.println(str[i]);
-                } /*else {
-                    System.out.println(str[i] + " is a file");
-                }*/
+                }
             }
-        } /*else {
-            System.out.println(dirName + "is not a directory");
-        }*/
+        }
     }
 }
