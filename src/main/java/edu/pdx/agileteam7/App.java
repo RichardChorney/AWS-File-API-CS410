@@ -49,7 +49,10 @@ public class App
                 "mkdir: make directory\n" +
                 "cp: copy directory\n" +
                 "adfl: add 1 file to bucket\n"+
-                "adMfl: adds mult. files\n";
+                "adMfl: adds mult. files\n" +
+                "list: list dictionaries and files in local machine\n" +
+                "rename: rename file in local machine\n";
+
 
         // Asks for user input
         String newestCommand = "";
@@ -95,6 +98,55 @@ public class App
                     String bucketName = myObj.nextLine();
                     currentBucket = Buckets.getBucket(bucketName);
                     Buckets.listObjects(bucketName);
+                } else if(newestCommand.equals("list")) {
+                    System.out.print("Please enter the OS you're using: ");
+                    String os = myObj.nextLine();
+                    System.out.print("Please enter the name of the user: ");
+                    String name = myObj.nextLine();
+                    System.out.print("Are there other directories that you would like to add to the path? ");
+                    String option = myObj.nextLine();
+                    String path = new String();
+                    if(option.substring(0,1).toUpperCase().equals("Y")) {
+                        System.out.print("Please enter the name of the directory" +
+                                "(if it's more than one directories ahead, please put a '/' afterwards): ");
+                        path = myObj.nextLine();
+                    } else if(option.substring(0,1).toUpperCase().equals("N")) {
+                        path = "";
+                    } else {
+                        System.out.println("Please enter a valid answer.");
+                    }
+
+                    System.out.print("Would you like to have all files or directories printed? ");
+                    option = myObj.nextLine();
+                    if(option.toUpperCase().equals("FILES")) {
+                        FileHandling.fileList(os, name, path);
+                    } else {
+                        FileHandling.dirList(os, name, path);
+                    }
+                } else if(newestCommand.equals("rename")) {
+                    String path = new String();
+                    System.out.print("Please enter the OS you're using: ");
+                    String os = myObj.nextLine();
+                    System.out.print("Please enter the name of the user: ");
+                    String name = myObj.nextLine();
+                    System.out.print("Are there other directories that you would like to add to the path? ");
+                    String option = myObj.nextLine();
+                    if(option.substring(0,1).toUpperCase().equals("Y")) {
+                        System.out.print("Please enter the name of the directory" +
+                                "(if it's more than one directories ahead, please put a '/' afterwards): ");
+                        path = myObj.nextLine();
+                    } else if(option.substring(0,1).toUpperCase().equals("N")) {
+                        path = "";
+                    } else {
+                        System.out.println("Please enter a valid answer");
+                    }
+
+                    System.out.print("Please enter the file name: ");
+                    String old = myObj.nextLine();
+
+                    System.out.print("Please enter the new name: ");
+                    String newName = myObj.nextLine();
+                    FileHandling.rename(old, newName, os, name, path);
                 } else if (newestCommand.equals("mkdir")) {
                     //User Input
                     System.out.println("Please enter bucket: ");
