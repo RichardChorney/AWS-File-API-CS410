@@ -1,6 +1,6 @@
 package edu.pdx.agileteam7;
 
-import  java.util.Scanner;
+import java.util.Scanner;
 
 import com.amazonaws.SdkClientException;
 import com.amazonaws.services.dynamodbv2.xspec.S;
@@ -15,51 +15,44 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class uploadtest {
 
-   @Test
+    @Test
     public void testone() throws IOException {
 
-    UploadObject object = new UploadObject("AKIATB55VFIMQXG64JQB","sIzFarHjMx73rqRDGyTMj5tIFIx6CzDOseyNPNXY","georgekingston0711");
+        UploadObject object = new UploadObject("AKIATB55VFIMQXG64JQB", "sIzFarHjMx73rqRDGyTMj5tIFIx6CzDOseyNPNXY", "georgekingston0711");
 
-    object.AddToBucket("test.txt","src/main/test.txt");
-   //"text.txt","src/main/test.txt");
-
-   }
-   @Ignore
-   @Test
-    public void testformethodoverloading(){
-
-        UploadObject object = new UploadObject("AKIATB55VFIMQXG64JQB","sIzFarHjMx73rqRDGyTMj5tIFIx6CzDOseyNPNXY","georgekingston0711");
-
-        object.AddToBucket();
-
-
+        object.AddToBucket("test.txt", "src/main/test.txt");
+        //"text.txt","src/main/test.txt");
 
     }
-    @Ignore
-   @Test
-   public void TestUploadSingleShouldGetError() throws IOException{
 
-       UploadObject object = new UploadObject("AKIATB55VFIMQXG64JQB","sIzFarHjMx73rqRDGyTMj5tIFIx6CzDOseyNPNXY","georgekingston0711");
-
-       object.AddToBucket("testDifName.txt","src/main/test.txt");
-   }
     @Ignore
-   @Test
+    @Test
+    public void testformethodoverloading() {
+
+        UploadObject object = new UploadObject("AKIATB55VFIMQXG64JQB", "sIzFarHjMx73rqRDGyTMj5tIFIx6CzDOseyNPNXY", "georgekingston0711");
+
+        object.AddToBucket();
+    }
+
+    @Ignore
+    @Test
+    public void TestUploadSingleShouldGetError() throws IOException {
+
+        UploadObject object = new UploadObject("AKIATB55VFIMQXG64JQB", "sIzFarHjMx73rqRDGyTMj5tIFIx6CzDOseyNPNXY", "georgekingston0711");
+
+        object.AddToBucket("testDifName.txt", "src/main/test.txt");
+    }
+
+    @Ignore
+    @Test
     public void TestMultiFiles() {
 
-
-       UploadObject object = new UploadObject("AKIATB55VFIMQXG64JQB","sIzFarHjMx73rqRDGyTMj5tIFIx6CzDOseyNPNXY","georgekingston0711");
-       Scanner myObj = new Scanner(System.in);
-       System.out.println("Please enter number of files to enter ");
-       int num = myObj.nextInt();
-       object.AddMultToBucket(num);
-
-   }
-
-
-
-
-
+        UploadObject object = new UploadObject("AKIATB55VFIMQXG64JQB", "sIzFarHjMx73rqRDGyTMj5tIFIx6CzDOseyNPNXY", "georgekingston0711");
+        Scanner myObj = new Scanner(System.in);
+        System.out.println("Please enter number of files to enter ");
+        int num = myObj.nextInt();
+        object.AddMultToBucket(num);
+    }
 
 
 }

@@ -3,6 +3,7 @@ package edu.pdx.agileteam7;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
+
 import java.io.IOException;
 import java.io.File;
 import java.util.Scanner;
@@ -25,7 +26,6 @@ public class UploadObject {
     public void AddToBucket(String Filename, String FilePath) {
 
         try {
-
             BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.AccessKey, this.SecretKey);
             AmazonS3Client s3 = new AmazonS3Client(awsCreds);
 
@@ -38,7 +38,6 @@ public class UploadObject {
             //System.err.println("ISSUE WITH ARGS");
             e.printStackTrace();
         }
-
     }
 
     public void AddToBucket() {
@@ -59,7 +58,6 @@ public class UploadObject {
                     "src/main/test.txt\n");
             FilePath = myObj.nextLine();
 
-
             s3.putObject(this.Bucket, FileName, new File(FilePath));
 
         } catch (Exception e) {
@@ -74,8 +72,6 @@ public class UploadObject {
         try {
             BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.AccessKey, this.SecretKey);
             AmazonS3Client s3 = new AmazonS3Client(awsCreds);
-
-
 
             int i;
             for (i = 0; i < count; i++) {
@@ -95,7 +91,6 @@ public class UploadObject {
             p.printStackTrace();
         }
     }
-
 }
 
 
