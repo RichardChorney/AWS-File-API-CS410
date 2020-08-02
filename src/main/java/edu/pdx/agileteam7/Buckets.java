@@ -65,24 +65,17 @@ public class Buckets {
         return b;
     }
 
+    /**
+     * This method lists all of the objects in a bucket
+     *
+     * @param bucketName The name of the bucket to which to list objects from
+     */
     public static void listObjects(String bucketName) {
         try {
             ListObjectsV2Result result = S3.listObjectsV2(bucketName);
             List<S3ObjectSummary> objects = result.getObjectSummaries();
             for (S3ObjectSummary os : objects) {
                 System.out.println("* " + os.getKey());
-            }
-        } catch (Exception e) {
-            throw new ArgumentException("ERROR");
-        }
-    }
-
-    public static void listBuckets() {
-        try {
-            List<Bucket> buckets = S3.listBuckets();
-            System.out.println("\nYour Amazon S3 buckets are:");
-            for (Bucket b : buckets) {
-                System.out.println("* " + b.getName());
             }
         } catch (Exception e) {
             throw new ArgumentException("ERROR");

@@ -3,20 +3,22 @@ package edu.pdx.agileteam7;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.EnvironmentVariableCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.devicefarm.model.ArgumentException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
+//import com.sun.tools.javac.comp.Env;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import java.util.Scanner;
 
+
 /**
- * Hello world!
+ *
  */
 public class App {
     public static String AWS_ACCESS_KEYS = "";
@@ -28,6 +30,7 @@ public class App {
         final String USAGE = "\n" +
                 "Commands \n" +
                 "q: to quit\n" +
+                "ls: list buckets\n" +
                 "cb: to create new bucket\n" +
                 "gb: to get a bucket\n" +
                 "mkdir: make directory\n" +
@@ -41,12 +44,30 @@ public class App {
         String newestCommand = "";
         Scanner myObj = new Scanner(System.in);
 
-        System.out.println("Please enter access key: ");
-        AWS_ACCESS_KEYS = myObj.nextLine();
+        boolean credentialsUsed = false;
+
+        File credFile = new File("credentials.txt");
+        if(credFile.exists()){
+            System.out.println("Credentials located.\nDo you want to use credentials provided in 'credentials.txt'? (yes/no)");
+            newestCommand = myObj.nextLine();
+            if(newestCommand.toLowerCase().equals("yes")){
+                try{
+                    checkForCredentials();
+                    credentialsUsed = true;
+                }catch (IOException e){
+                    System.out.println("Unable to retrieve credentials");
+                }
+            }
+        }
+
+        if(!credentialsUsed){
+            System.out.println("Please enter access key: ");
+            AWS_ACCESS_KEYS = myObj.nextLine();
 //        AWS_ACCESS_KEYS = "AKIATB55VFIM6ETVL7AA";
-        System.out.println("Please enter secret key: ");
-        AWS_SECRET_KEYS = myObj.nextLine();
+            System.out.println("Please enter secret key: ");
+            AWS_SECRET_KEYS = myObj.nextLine();
 //        AWS_SECRET_KEYS = "wPVnQ4S5RUuoZoZTOhFrOZnwyUu830/hck04oqD4";
+        }
 
         // Checks for valid AWS credentials
         try {
@@ -55,6 +76,8 @@ public class App {
             System.out.println("Login Failed: Please enter valid Access and Secret Keys");
             System.exit(1);
         }
+
+        System.out.println("Login Successful");
 
         int callCounts = 0;
 
@@ -70,10 +93,11 @@ public class App {
             try {
                 System.out.println(USAGE);
                 newestCommand = myObj.nextLine();
-                System.out.println(newestCommand);
                 if (newestCommand.equals("q")) {
                     System.out.println("Goodbye");
                     break;
+                } else if (newestCommand.equals("ls")){
+                    listBuckets();
                 } else if (newestCommand.equals("cb")) {
                     System.out.println("Please enter a bucket name to create: ");
                     String bucketName = myObj.nextLine();
@@ -82,7 +106,6 @@ public class App {
                     System.out.println("Please enter a bucket name to get: ");
                     String bucketName = myObj.nextLine();
                     CURRENT_BUCKET = Buckets.getBucket(bucketName);
-                    Buckets.listObjects(bucketName);
                 } else if (newestCommand.equals("list")) {
                     System.out.print("Please enter the OS you're using: ");
                     String os = myObj.nextLine();
@@ -100,7 +123,6 @@ public class App {
                     } else {
                         System.out.println("Please enter a valid answer.");
                     }
-
                     System.out.print("Would you like to have all files or directories printed? ");
                     option = myObj.nextLine();
                     if (option.toUpperCase().equals("FILES")) {
@@ -164,12 +186,9 @@ public class App {
                     System.out.println("Please enter bucket name we are working with: ");
                     String BucketNAME = myObj.nextLine();
                     UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, BucketNAME);
-
                     object.AddToBucket();
 
-
                 } else if (newestCommand.equals("adMfl")) {
-
                     System.out.println("Please enter bucket name we are working with: ");
                     String BucketNAME = myObj.nextLine();
                     UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, BucketNAME);
@@ -232,25 +251,18 @@ public class App {
                 System.out.println("Please enter a valid command");
             }
         }
-    }
-
-    /**
-     * This method lists all of the objects in a bucket
-     *
-     * @param bucketName The name of the bucket to which to list objects from
-     */
-    public static void listObjects(String bucketName) {
-        System.out.format("Objects in bucket %s:\n", bucketName);
-        try {
-            //AmazonS3Client s3 = new AmazonS3Client(awsCreds);
-
-            ListObjectsV2Result result = S3.listObjectsV2(bucketName);
-            List<S3ObjectSummary> objects = result.getObjectSummaries();
-            for (S3ObjectSummary os : objects) {
-                System.out.println("* " + os.getKey());
+        if(!credentialsUsed){
+            System.out.println("Do you want to save your login information?");
+            newestCommand = myObj.nextLine();
+            if(newestCommand.toLowerCase().equals("yes")){
+                try{
+                    saveCredentials();
+                    System.out.println("Login information saved");
+                }catch (IOException e){
+                    System.out.println("Unable to save login information");
+                    System.exit(0);
+                }
             }
-        } catch (Exception e) {
-            throw new ArgumentException("ERROR");
         }
     }
 
@@ -262,12 +274,8 @@ public class App {
      */
     public static AmazonS3 validateCredentials() throws Exception {
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
-        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
+        AmazonS3Client s3 = new AmazonS3Client(awsCreds);
         List<Bucket> buckets = s3.listBuckets();
-        System.out.println("Your Amazon S3 buckets are:");
-        for (Bucket b : buckets) {
-            System.out.println("* " + b.getName());
-        }
         return s3;
     }
 
@@ -307,6 +315,29 @@ public class App {
             return false;
         }
         return true;
+    }
+
+    public static boolean checkForCredentials() throws IOException {
+        File file = new File("credentials.txt");
+        if(file.exists()){
+            BufferedReader br = new BufferedReader(new FileReader(file));
+            AWS_ACCESS_KEYS = br.readLine();
+            AWS_SECRET_KEYS = br.readLine();
+            br.close();
+            return true;
+        }
+        return false;
+    }
+
+    private static void saveCredentials() throws IOException {
+        String path = "credentials.txt";
+        File file = new File(path);
+
+        //Overwrite file if it exists
+        FileWriter myWriter = new FileWriter(path,false);
+        myWriter.write(AWS_ACCESS_KEYS + "\n");
+        myWriter.write(AWS_SECRET_KEYS);
+        myWriter.close();
     }
 }
 

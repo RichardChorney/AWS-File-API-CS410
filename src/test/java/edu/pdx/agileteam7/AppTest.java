@@ -20,6 +20,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -41,6 +42,13 @@ public class AppTest {
         App.validateCredentials();
     }
 
+    @Test
+    public void validCredentials() throws Exception {
+        App.AWS_ACCESS_KEYS = "AKIATB55VFIM6ETVL7AA";
+        App.AWS_SECRET_KEYS = "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";
+        App.validateCredentials();
+    }
+
     //Tests whether a object is successfully downloaded
     @Test
     public void getObjectDownloads() {
@@ -57,6 +65,11 @@ public class AppTest {
         if (f.exists()) {
             f.delete();
         }
+    }
+
+    @Test
+    public void credentialsFileExists() throws IOException {
+        assertThat(App.checkForCredentials(), equalTo(true));
     }
 
     //This test requires manually deleting autoTestFolder/ every time until
