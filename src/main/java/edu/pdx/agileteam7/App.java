@@ -50,6 +50,7 @@ public class App
                 "cp: copy directory\n" +
                 "adfl: add 1 file to bucket\n"+
                 "adMfl: adds mult. files\n" +
+                "vlg: view logs of buckets\n" +
                 "list: list dictionaries and files in local machine\n" +
                 "rename: rename file in local machine\n";
 
@@ -98,6 +99,17 @@ public class App
                     String bucketName = myObj.nextLine();
                     currentBucket = Buckets.getBucket(bucketName);
                     Buckets.listObjects(bucketName);
+
+
+
+
+
+                } else if(newestCommand.equals("vlg")){
+                    currentBucket = Buckets.getBucket("logsagile");
+                    Buckets.listObjects("logsagile");
+
+
+
                 } else if(newestCommand.equals("list")) {
                     System.out.print("Please enter the OS you're using: ");
                     String os = myObj.nextLine();
@@ -263,7 +275,8 @@ public class App
     public static void listObjects(String bucketName){
         System.out.format("Objects in bucket %s:\n", bucketName);
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
-        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
+        AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+        //final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
         try {
             //AmazonS3Client s3 = new AmazonS3Client(awsCreds);
 
@@ -286,7 +299,8 @@ public class App
     public static boolean validateCredentials(){
         try {
             BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
-            final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
+            AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+            //final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
             List<Bucket> buckets = s3.listBuckets();
             System.out.println("Your Amazon S3 buckets are:");
             for (Bucket b : buckets) {
@@ -307,7 +321,8 @@ public class App
     public static boolean getObject(String objectName, String bucketName) {
         System.out.format("Downloading %s from S3 bucket %s...\n", objectName, bucketName);
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
-        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
+        AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+        //final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
         try {
             S3Object o = s3.getObject(bucketName, objectName);
             S3ObjectInputStream s3is = o.getObjectContent();
