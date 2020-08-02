@@ -51,9 +51,8 @@ public class App {
                 "You are in the main menu\n" +
                 "Commands \n" +
                 "q: to quit\n" +
-                "r: to access remote buckets, directories, files\n"+
-                "l: to access local directories and files\n"
-                ;
+                "r: to access remote buckets, directories, files\n" +
+                "l: to access local directories and files\n";
 
         final String Remote = "\n" +
                 "You are in the remote menu\n" +
@@ -61,8 +60,7 @@ public class App {
                 "b: to go back\n" +
                 "cb: to create new bucket\n" +
                 "gb: to get a bucket\n" +
-                "vgl: view logs of buckets\n"
-                ;
+                "vgl: view logs of buckets\n";
 
 
         final String Local = "\n" +
@@ -77,20 +75,20 @@ public class App {
         boolean credentialsUsed = false;
 
         File credFile = new File("credentials.txt");
-        if(credFile.exists()){
+        if (credFile.exists()) {
             System.out.println("Credentials located.\nDo you want to use credentials provided in 'credentials.txt'? (yes/no)");
             newestCommand = myObj.nextLine();
-            if(newestCommand.toLowerCase().equals("yes")){
-                try{
+            if (newestCommand.toLowerCase().equals("yes")) {
+                try {
                     checkForCredentials();
                     credentialsUsed = true;
-                }catch (IOException e){
+                } catch (IOException e) {
                     System.out.println("Unable to retrieve credentials");
                 }
             }
         }
 
-        if(!credentialsUsed){
+        if (!credentialsUsed) {
             System.out.println("Please enter access key: ");
             AWS_ACCESS_KEYS = myObj.nextLine();
 //        AWS_ACCESS_KEYS = "AKIATB55VFIM6ETVL7AA";
@@ -131,28 +129,24 @@ public class App {
                     while (true) {
                         System.out.println(Remote);
                         newestCommand = myObj.nextLine();
-                        System.out.println(newestCommand);
                         boolean vglAccessed = false;
 
-                        if(newestCommand.equals("b")) {
+                        if (newestCommand.equals("b")) {
                             System.out.println("Returned to main menu");
                             break;
-                        }else if (newestCommand.equals("ls")){
+                        } else if (newestCommand.equals("ls")) {
                             listBuckets();
                         } else if (newestCommand.equals("cb")) {
                             System.out.println("Please enter a bucket name to create: ");
                             String bucketName = myObj.nextLine();
                             CURRENT_BUCKET = Buckets.createBucket(bucketName);
 
-
-
                         } else if (newestCommand.equals("gb")) {
                             System.out.println("Please enter a bucket name to get: ");
                             String bucketName = myObj.nextLine();
                             CURRENT_BUCKET = Buckets.getBucket(bucketName);
 
-
-                        } else if(newestCommand.equals("vgl")) {
+                        } else if (newestCommand.equals("vgl")) {
 
                             CURRENT_BUCKET = Buckets.getBucket("logsagile");
                             Buckets.listObjects("logsagile");
@@ -169,7 +163,7 @@ public class App {
                                         "b: return to the previous menu\n" +
                                         "mkdir: make directory\n" +
                                         "cp: copy directory\n" +
-                                        "adfl: add 1 file to bucket\n"+
+                                        "adfl: add 1 file to bucket\n" +
                                         "adMfl: adds mult. files\n" +
                                         "ls: list the objects in the current bucket\n" +
                                         "go: Downloads the object to local machine\n" +
@@ -210,16 +204,15 @@ public class App {
                                     }
                                 } else if (newestCommand.equals("mkdir")) {
 
-
                                     //User Input
                                     System.out.println("Please enter bucket: ");
                                     String bucketName = myObj.nextLine();
                                     System.out.println("Please enter directory (must end with / ): ");
                                     String directoryName = myObj.nextLine();
                                     //Calls directory creation function
-                                    boolean success = Directory.mkdir(bucketName,directoryName);
+                                    boolean success = Directory.mkdir(bucketName, directoryName);
                                     //Barks failure on function returning an error
-                                    if(!success){
+                                    if (!success) {
                                         System.out.println("Directory creation failed.");
                                     }
                                 } else if (newestCommand.equals("cp")) {
@@ -231,40 +224,34 @@ public class App {
                                     System.out.println("Please enter target directory (must end with / ): ");
                                     String targetDirectory = myObj.nextLine();
                                     //Calls directory copying function
-                                    boolean success = Directory.cp(CURRENT_BUCKET.getName(),sourceDirectory,targetName, targetDirectory);
+                                    boolean success = Directory.cp(CURRENT_BUCKET.getName(), sourceDirectory, targetName, targetDirectory);
                                     //Barks failure on cp returning an error
-                                    if(!success){
+                                    if (!success) {
                                         System.out.println("Directory copy failed.");
                                     }
-                                } else if (newestCommand.equals("adfl")){
+                                } else if (newestCommand.equals("adfl")) {
 
-                                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS,CURRENT_BUCKET.getName());
+                                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
 
                                     object.AddToBucket();
 
+                                } else if (newestCommand.equals("adMfl")) {
 
-                                }else if(newestCommand.equals("adMfl")) {
-
-                                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS,CURRENT_BUCKET.getName());
+                                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
                                     System.out.println("Enter how many files you want to upload");
                                     int num = myObj.nextInt();
 
                                     object.AddMultToBucket(num);
 
-                                }
-                                else {
+                                } else {
                                     System.out.println("Please enter a valid command");
                                 }
                             }
                         }
 
-
                     }
                 } else if (myObj.equals("l")) {
                     // Put the local code here
-
-
-
 
 //                    if(newestCommand.equals("list")) {
 //                        System.out.print("Please enter the OS you're using: ");
@@ -317,7 +304,6 @@ public class App {
 //                        FileHandling.rename(old, newName, os, name, path);
 //                    }
 
-
                 } else {
                     System.out.println("Please enter a valid command");
                 }
@@ -326,14 +312,14 @@ public class App {
                 System.out.println("Reverting back to main");
             }
         }
-        if(!credentialsUsed){
+        if (!credentialsUsed) {
             System.out.println("Do you want to save your login information?");
             newestCommand = myObj.nextLine();
-            if(newestCommand.toLowerCase().equals("yes")){
-                try{
+            if (newestCommand.toLowerCase().equals("yes")) {
+                try {
                     saveCredentials();
                     System.out.println("Login information saved");
-                }catch (IOException e){
+                } catch (IOException e) {
                     System.out.println("Unable to save login information");
                     System.exit(0);
                 }
@@ -394,7 +380,7 @@ public class App {
 
     public static boolean checkForCredentials() throws IOException {
         File file = new File("credentials.txt");
-        if(file.exists()){
+        if (file.exists()) {
             BufferedReader br = new BufferedReader(new FileReader(file));
             AWS_ACCESS_KEYS = br.readLine();
             AWS_SECRET_KEYS = br.readLine();
@@ -409,7 +395,7 @@ public class App {
         File file = new File(path);
 
         //Overwrite file if it exists
-        FileWriter myWriter = new FileWriter(path,false);
+        FileWriter myWriter = new FileWriter(path, false);
         myWriter.write(AWS_ACCESS_KEYS + "\n");
         myWriter.write(AWS_SECRET_KEYS);
         myWriter.close();
