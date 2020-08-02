@@ -69,7 +69,10 @@ public class App
                 "mkdir: make directory\n" +
                 "cp: copy directory\n" +
                 "adfl: add 1 file to bucket\n"+
-                "adMfl: adds mult. files\n";
+                "adMfl: adds mult. files\n" +
+                "vgl: view logs of buckets\n"
+                ;
+
 
         final String Local = "\n" +
                 "b: to go back\n" +
@@ -178,7 +181,12 @@ public class App
 
                             object.AddMultToBucket(num);
 
-                        }else {
+                        } else if(newestCommand.equals("vgl")) {
+
+                            currentBucket = Buckets.getBucket("logsagile");
+                            Buckets.listObjects("logsagile");
+
+                        } else {
                             System.out.println("Please enter a valid command");
                         }
 
@@ -291,10 +299,6 @@ public class App
                 } else {
                     System.out.println("Please enter a valid command");
                 }
-
-
-
-
 
             } catch (Exception a) {
                 System.out.println("Please enter a valid command");
