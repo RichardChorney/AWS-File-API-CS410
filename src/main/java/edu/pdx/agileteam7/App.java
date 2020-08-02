@@ -11,9 +11,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 //import com.sun.tools.javac.comp.Env;
-
 import java.io.*;
-
 import javax.sound.midi.SysexMessage;
 import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.io.File;
@@ -22,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.Scanner;
-
 
 /**
  *
@@ -61,7 +58,6 @@ public class App {
                 "cb: to create new bucket\n" +
                 "gb: to get a bucket\n" +
                 "vgl: view logs of buckets\n";
-
 
         final String Local = "\n" +
                 "b: to go back\n" +
@@ -111,7 +107,6 @@ public class App {
 
         // Main driver that checks for user commands
         while (true) {
-
             callCounts++;
 
             // Exit after 25 calls
@@ -125,12 +120,10 @@ public class App {
                     System.out.println("Goodbye");
                     break;
                 } else if (newestCommand.equals("r")) {
-
                     while (true) {
                         System.out.println(Remote);
                         newestCommand = myObj.nextLine();
                         boolean vglAccessed = false;
-
                         if (newestCommand.equals("b")) {
                             System.out.println("Returned to main menu");
                             break;
@@ -140,7 +133,6 @@ public class App {
                             System.out.println("Please enter a bucket name to create: ");
                             String bucketName = myObj.nextLine();
                             CURRENT_BUCKET = Buckets.createBucket(bucketName);
-
                         } else if (newestCommand.equals("gb")) {
                             System.out.println("Please enter a bucket name to get: ");
                             String bucketName = myObj.nextLine();
@@ -151,7 +143,6 @@ public class App {
                             CURRENT_BUCKET = Buckets.getBucket("logsagile");
                             Buckets.listObjects("logsagile");
                             vglAccessed = true;
-
                         } else {
                             System.out.println("Please enter a valid command");
                             continue;
@@ -230,9 +221,7 @@ public class App {
                                         System.out.println("Directory copy failed.");
                                     }
                                 } else if (newestCommand.equals("adfl")) {
-
                                     UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
-
                                     object.AddToBucket();
 
                                 } else if (newestCommand.equals("adMfl")) {
@@ -240,15 +229,12 @@ public class App {
                                     UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
                                     System.out.println("Enter how many files you want to upload");
                                     int num = myObj.nextInt();
-
                                     object.AddMultToBucket(num);
-
                                 } else {
                                     System.out.println("Please enter a valid command");
                                 }
                             }
                         }
-
                     }
                 } else if (myObj.equals("l")) {
                     // Put the local code here
