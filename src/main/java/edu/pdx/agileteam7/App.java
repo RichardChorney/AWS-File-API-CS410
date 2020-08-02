@@ -13,6 +13,13 @@ import com.amazonaws.services.s3.model.*;
 //import com.sun.tools.javac.comp.Env;
 
 import java.io.*;
+
+import javax.sound.midi.SysexMessage;
+import javax.swing.plaf.synth.SynthTextAreaUI;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.*;
 import java.util.Scanner;
 
@@ -37,6 +44,29 @@ public class App {
                 "cp: copy directory\n" +
                 "adfl: add 1 file to bucket\n" +
                 "adMfl: adds mult. files\n" +
+                "list: list dictionaries and files in local machine\n" +
+                "rename: rename file in local machine\n";
+
+        final String Main_Menu = "\n" +
+                "You are in the main menu\n" +
+                "Commands \n" +
+                "q: to quit\n" +
+                "r: to access remote buckets, directories, files\n"+
+                "l: to access local directories and files\n"
+                ;
+
+        final String Remote = "\n" +
+                "You are in the remote menu\n" +
+                "Commands \n" +
+                "b: to go back\n" +
+                "cb: to create new bucket\n" +
+                "gb: to get a bucket\n" +
+                "vgl: view logs of buckets\n"
+                ;
+
+
+        final String Local = "\n" +
+                "b: to go back\n" +
                 "list: list dictionaries and files in local machine\n" +
                 "rename: rename file in local machine\n";
 
@@ -91,164 +121,209 @@ public class App {
                 return;
             }
             try {
-                System.out.println(USAGE);
+                System.out.println(Main_Menu);
                 newestCommand = myObj.nextLine();
                 if (newestCommand.equals("q")) {
                     System.out.println("Goodbye");
                     break;
-                } else if (newestCommand.equals("ls")){
-                    listBuckets();
-                } else if (newestCommand.equals("cb")) {
-                    System.out.println("Please enter a bucket name to create: ");
-                    String bucketName = myObj.nextLine();
-                    CURRENT_BUCKET = Buckets.createBucket(bucketName);
-                } else if (newestCommand.equals("gb")) {
-                    System.out.println("Please enter a bucket name to get: ");
-                    String bucketName = myObj.nextLine();
-                    CURRENT_BUCKET = Buckets.getBucket(bucketName);
-                } else if (newestCommand.equals("list")) {
-                    System.out.print("Please enter the OS you're using: ");
-                    String os = myObj.nextLine();
-                    System.out.print("Please enter the name of the user: ");
-                    String name = myObj.nextLine();
-                    System.out.print("Are there other directories that you would like to add to the path? ");
-                    String option = myObj.nextLine();
-                    String path = new String();
-                    if (option.substring(0, 1).toUpperCase().equals("Y")) {
-                        System.out.print("Please enter the name of the directory" +
-                                "(if it's more than one directories ahead, please put a '/' afterwards): ");
-                        path = myObj.nextLine();
-                    } else if (option.substring(0, 1).toUpperCase().equals("N")) {
-                        path = "";
-                    } else {
-                        System.out.println("Please enter a valid answer.");
-                    }
-                    System.out.print("Would you like to have all files or directories printed? ");
-                    option = myObj.nextLine();
-                    if (option.toUpperCase().equals("FILES")) {
-                        FileHandling.fileList(os, name, path);
-                    } else {
-                        FileHandling.dirList(os, name, path);
-                    }
-                } else if (newestCommand.equals("rename")) {
-                    String path = new String();
-                    System.out.print("Please enter the OS you're using: ");
-                    String os = myObj.nextLine();
-                    System.out.print("Please enter the name of the user: ");
-                    String name = myObj.nextLine();
-                    System.out.print("Are there other directories that you would like to add to the path? ");
-                    String option = myObj.nextLine();
-                    if (option.substring(0, 1).toUpperCase().equals("Y")) {
-                        System.out.print("Please enter the name of the directory" +
-                                "(if it's more than one directories ahead, please put a '/' afterwards): ");
-                        path = myObj.nextLine();
-                    } else if (option.substring(0, 1).toUpperCase().equals("N")) {
-                        path = "";
-                    } else {
-                        System.out.println("Please enter a valid answer");
-                    }
+                } else if (newestCommand.equals("r")) {
 
-                    System.out.print("Please enter the file name: ");
-                    String old = myObj.nextLine();
+                    while (true) {
+                        System.out.println(Remote);
+                        newestCommand = myObj.nextLine();
+                        System.out.println(newestCommand);
+                        boolean vglAccessed = false;
 
-                    System.out.print("Please enter the new name: ");
-                    String newName = myObj.nextLine();
-                    FileHandling.rename(old, newName, os, name, path);
-                } else if (newestCommand.equals("mkdir")) {
-                    //User Input
-                    System.out.println("Please enter bucket: ");
-                    String bucketName = myObj.nextLine();
-                    System.out.println("Please enter directory (must end with / ): ");
-                    String directoryName = myObj.nextLine();
-                    //Calls directory creation function
-                    boolean success = Directory.mkdir(bucketName, directoryName);
-                    //Barks failure on function returning an error
-                    if (!success) {
-                        System.out.println("Directory creation failed.");
+                        if(newestCommand.equals("b")) {
+                            System.out.println("Returned to main menu");
+                            break;
+                        }else if (newestCommand.equals("ls")){
+                            listBuckets();
+                        } else if (newestCommand.equals("cb")) {
+                            System.out.println("Please enter a bucket name to create: ");
+                            String bucketName = myObj.nextLine();
+                            CURRENT_BUCKET = Buckets.createBucket(bucketName);
+
+
+
+                        } else if (newestCommand.equals("gb")) {
+                            System.out.println("Please enter a bucket name to get: ");
+                            String bucketName = myObj.nextLine();
+                            CURRENT_BUCKET = Buckets.getBucket(bucketName);
+
+
+                        } else if(newestCommand.equals("vgl")) {
+
+                            CURRENT_BUCKET = Buckets.getBucket("logsagile");
+                            Buckets.listObjects("logsagile");
+                            vglAccessed = true;
+
+                        } else {
+                            System.out.println("Please enter a valid command");
+                            continue;
+                        }
+
+                        if (CURRENT_BUCKET != null && !vglAccessed) {
+                            while (true) {
+                                System.out.println("\nBucket accessed. Please enter one of the following commands.\n" +
+                                        "b: return to the previous menu\n" +
+                                        "mkdir: make directory\n" +
+                                        "cp: copy directory\n" +
+                                        "adfl: add 1 file to bucket\n"+
+                                        "adMfl: adds mult. files\n" +
+                                        "ls: list the objects in the current bucket\n" +
+                                        "go: Downloads the object to local machine\n" +
+                                        "gm: Downloads multiple objects to local machine\n");
+                                newestCommand = myObj.nextLine();
+                                if (newestCommand.equals("b")) {
+                                    break;
+                                } else if (newestCommand.equals("ls")) {
+                                    Buckets.listObjects(CURRENT_BUCKET.getName());
+                                } else if (newestCommand.equals("go")) {
+                                    System.out.println("Please enter the name of the object");
+                                    String objectName = myObj.nextLine();
+                                    if (getObject(objectName, CURRENT_BUCKET.getName())) {
+                                        System.out.println("Object downloaded.");
+                                    } else {
+                                        System.out.println("Download failed");
+                                    }
+                                } else if (newestCommand.equals("gm")) {
+                                    int numObjects = 0;
+                                    System.out.println("Enter the number of objects to download");
+                                    try {
+                                        numObjects = Integer.parseInt(myObj.nextLine());
+                                        if (numObjects <= 5) {
+                                            for (int i = 0; i < numObjects; i++) {
+                                                System.out.println("Please enter the name of the object");
+                                                String objectName = myObj.nextLine();
+                                                if (getObject(objectName, CURRENT_BUCKET.getName())) {
+                                                    System.out.println("Object downloaded.");
+                                                } else {
+                                                    System.out.println("Download failed");
+                                                }
+                                            }
+                                        } else {
+                                            System.out.println("Max number of downloads is 5");
+                                        }
+                                    } catch (NumberFormatException e) {
+                                        System.out.println("Invalid number. Please enter a whole number <= 5");
+                                    }
+                                } else if (newestCommand.equals("mkdir")) {
+
+
+                                    //User Input
+                                    System.out.println("Please enter bucket: ");
+                                    String bucketName = myObj.nextLine();
+                                    System.out.println("Please enter directory (must end with / ): ");
+                                    String directoryName = myObj.nextLine();
+                                    //Calls directory creation function
+                                    boolean success = Directory.mkdir(bucketName,directoryName);
+                                    //Barks failure on function returning an error
+                                    if(!success){
+                                        System.out.println("Directory creation failed.");
+                                    }
+                                } else if (newestCommand.equals("cp")) {
+                                    //User Input
+                                    System.out.println("Please enter source directory (must end with / ): ");
+                                    String sourceDirectory = myObj.nextLine();
+                                    System.out.println("Please enter target bucket name: ");
+                                    String targetName = myObj.nextLine();
+                                    System.out.println("Please enter target directory (must end with / ): ");
+                                    String targetDirectory = myObj.nextLine();
+                                    //Calls directory copying function
+                                    boolean success = Directory.cp(CURRENT_BUCKET.getName(),sourceDirectory,targetName, targetDirectory);
+                                    //Barks failure on cp returning an error
+                                    if(!success){
+                                        System.out.println("Directory copy failed.");
+                                    }
+                                } else if (newestCommand.equals("adfl")){
+
+                                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS,CURRENT_BUCKET.getName());
+
+                                    object.AddToBucket();
+
+
+                                }else if(newestCommand.equals("adMfl")) {
+
+                                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS,CURRENT_BUCKET.getName());
+                                    System.out.println("Enter how many files you want to upload");
+                                    int num = myObj.nextInt();
+
+                                    object.AddMultToBucket(num);
+
+                                }
+                                else {
+                                    System.out.println("Please enter a valid command");
+                                }
+                            }
+                        }
+
+
                     }
-                } else if (newestCommand.equals("cp")) {
-                    //User Input
-                    System.out.println("Please enter source bucket name: ");
-                    String sourceName = myObj.nextLine();
-                    System.out.println("Please enter source directory (must end with / ): ");
-                    String sourceDirectory = myObj.nextLine();
-                    System.out.println("Please enter target bucket name: ");
-                    String targetName = myObj.nextLine();
-                    System.out.println("Please enter target directory (must end with / ): ");
-                    String targetDirectory = myObj.nextLine();
-                    //Calls directory copying function
-                    boolean success = Directory.cp(sourceName, sourceDirectory, targetName, targetDirectory);
-                    //Barks failure on cp returning an error
-                    if (!success) {
-                        System.out.println("Directory copy failed.");
-                    }
-                } else if (newestCommand.equals("adfl")) {
-                    System.out.println("Please enter bucket name we are working with: ");
-                    String BucketNAME = myObj.nextLine();
-                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, BucketNAME);
-                    object.AddToBucket();
+                } else if (myObj.equals("l")) {
+                    // Put the local code here
 
-                } else if (newestCommand.equals("adMfl")) {
-                    System.out.println("Please enter bucket name we are working with: ");
-                    String BucketNAME = myObj.nextLine();
-                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, BucketNAME);
-                    System.out.println("Enter how many files you want to upload");
-                    int num = myObj.nextInt();
 
-                    object.AddMultToBucket(num);
+
+
+//                    if(newestCommand.equals("list")) {
+//                        System.out.print("Please enter the OS you're using: ");
+//                        String os = myObj.nextLine();
+//                        System.out.print("Please enter the name of the user: ");
+//                        String name = myObj.nextLine();
+//                        System.out.print("Are there other directories that you would like to add to the path? ");
+//                        String option = myObj.nextLine();
+//                        String path = new String();
+//                        if(option.substring(0,1).toUpperCase().equals("Y")) {
+//                            System.out.print("Please enter the name of the directory" +
+//                                    "(if it's more than one directories ahead, please put a '/' afterwards): ");
+//                            path = myObj.nextLine();
+//                        } else if(option.substring(0,1).toUpperCase().equals("N")) {
+//                            path = "";
+//                        } else {
+//                            System.out.println("Please enter a valid answer.");
+//                        }
+//
+//                        System.out.print("Would you like to have all files or directories printed? ");
+//                        option = myObj.nextLine();
+//                        if(option.toUpperCase().equals("FILES")) {
+//                            FileHandling.fileList(os, name, path);
+//                        } else {
+//                            FileHandling.dirList(os, name, path);
+//                        }
+//                    } else if(newestCommand.equals("rename")) {
+//                        String path = new String();
+//                        System.out.print("Please enter the OS you're using: ");
+//                        String os = myObj.nextLine();
+//                        System.out.print("Please enter the name of the user: ");
+//                        String name = myObj.nextLine();
+//                        System.out.print("Are there other directories that you would like to add to the path? ");
+//                        String option = myObj.nextLine();
+//                        if(option.substring(0,1).toUpperCase().equals("Y")) {
+//                            System.out.print("Please enter the name of the directory" +
+//                                    "(if it's more than one directories ahead, please put a '/' afterwards): ");
+//                            path = myObj.nextLine();
+//                        } else if(option.substring(0,1).toUpperCase().equals("N")) {
+//                            path = "";
+//                        } else {
+//                            System.out.println("Please enter a valid answer");
+//                        }
+//
+//                        System.out.print("Please enter the file name: ");
+//                        String old = myObj.nextLine();
+//
+//                        System.out.print("Please enter the new name: ");
+//                        String newName = myObj.nextLine();
+//                        FileHandling.rename(old, newName, os, name, path);
+//                    }
+
 
                 } else {
                     System.out.println("Please enter a valid command");
                 }
-                // If current bucket successfully created or retrieved.
-                if (CURRENT_BUCKET != null) {
-                    while (true) {
-                        System.out.println("\nEnter one of the following commands.\n" +
-                                "b: return to the previous menu\n" +
-                                "ls: list the objects in the current bucket\n" +
-                                "go: Downloads the object to current directory\n" +
-                                "gm: Downloads multiple objects\n");
-                        newestCommand = myObj.nextLine();
-                        if (newestCommand.equals("b")) {
-                            break;
-                        } else if (newestCommand.equals("ls")) {
-                            Buckets.listObjects(CURRENT_BUCKET.getName());
-                        } else if (newestCommand.equals("go")) {
-                            System.out.println("Please enter the name of the object");
-                            String objectName = myObj.nextLine();
-                            if (getObject(objectName, CURRENT_BUCKET.getName())) {
-                                System.out.println("Object downloaded.");
-                            } else {
-                                System.out.println("Download failed");
-                            }
-                        } else if (newestCommand.equals("gm")) {
-                            int numObjects = 0;
-                            System.out.println("Enter the number of objects to download");
-                            try {
-                                numObjects = Integer.parseInt(myObj.nextLine());
-                                if (numObjects <= 5) {
-                                    for (int i = 0; i < numObjects; i++) {
-                                        System.out.println("Please enter the name of the object");
-                                        String objectName = myObj.nextLine();
-                                        if (getObject(objectName, CURRENT_BUCKET.getName())) {
-                                            System.out.println("Object downloaded.");
-                                        } else {
-                                            System.out.println("Download failed");
-                                        }
-                                    }
-                                } else {
-                                    System.out.println("Max number of downloads is 5");
-                                }
-                            } catch (NumberFormatException e) {
-                                System.out.println("Invalid number. Please enter a whole number <= 5");
-                            }
-                        } else {
-                            System.out.println("Please enter a valid command");
-                        }
-                    }
-                }
+
             } catch (Exception a) {
-                System.out.println("Please enter a valid command");
+                System.out.println("Reverting back to main");
             }
         }
         if(!credentialsUsed){
