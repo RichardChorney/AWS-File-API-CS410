@@ -61,7 +61,7 @@ public class UploadObject {
             s3.putObject(this.Bucket, FileName, new File(FilePath));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            System.err.println("Unable to upload file. Received the following error: " + e.getMessage());
         }
     }
 
@@ -88,7 +88,7 @@ public class UploadObject {
             }
 
         } catch (SdkClientException p) {
-            p.printStackTrace();
+            System.err.println("Unable to upload file. Received the following error: " + p.getMessage());
         }
     }
 }
