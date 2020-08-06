@@ -35,19 +35,6 @@ public class App {
     public static AmazonS3 S3;
 
     public static void main(String[] args) {
-        final String USAGE = "\n" +
-                "Commands \n" +
-                "q: to quit\n" +
-                "ls: list buckets\n" +
-                "cb: to create new bucket\n" +
-                "gb: to get a bucket\n" +
-                "mkdir: make directory\n" +
-                "cp: copy directory\n" +
-                "adfl: add 1 file to bucket\n" +
-                "adMfl: adds mult. files\n" +
-                "list: list dictionaries and files in local machine\n" +
-                "rename: rename file in local machine\n";
-
         final String Main_Menu = "\n" +
                 "You are in the main menu\n" +
                 "Commands \n" +
@@ -68,6 +55,18 @@ public class App {
                 "b: to go back\n" +
                 "list: list dictionaries and files in local machine\n" +
                 "rename: rename file in local machine\n";
+
+        final String bucketMenu= "\n" +
+                "Please enter one of the following commands.\n" +
+                "b: return to the previous menu\n" +
+                "mkdir: make directory\n" +
+                "cp: copy directory\n" +
+                "adfl: add 1 file to bucket\n" +
+                "adMfl: adds mult. files\n" +
+                "ls: list the objects in the current bucket\n" +
+                "go: Downloads the object to local machine\n" +
+                "gm: Downloads multiple objects to local machine\n" +
+                "gd: Downloads directory to local machine";
 
         // Asks for user input
         String newestCommand = "";
@@ -156,15 +155,7 @@ public class App {
                         if (CURRENT_BUCKET != null && !vglAccessed) {
                             System.out.println("\nBucket accessed.");
                             while (true) {
-                                System.out.println("\nPlease enter one of the following commands.\n" +
-                                        "b: return to the previous menu\n" +
-                                        "mkdir: make directory\n" +
-                                        "cp: copy directory\n" +
-                                        "adfl: add 1 file to bucket\n" +
-                                        "adMfl: adds mult. files\n" +
-                                        "ls: list the objects in the current bucket\n" +
-                                        "go: Downloads the object to local machine\n" +
-                                        "gm: Downloads multiple objects to local machine\n");
+                                System.out.println(bucketMenu);
                                 newestCommand = myObj.nextLine();
                                 if (newestCommand.equals("b")) {
                                     CURRENT_BUCKET = null;
@@ -372,6 +363,24 @@ public class App {
         return true;
     }
 
+    private static void downloadDirectory(String bucket_name, String key_prefix, String dir_path) throws IllegalArgumentException{
+        if(!S3.doesObjectExist(CURRENT_BUCKET.getName(),key_prefix)){
+            throw new IllegalArgumentException("Remote directory does not exist");
+        }
+        System.out.println("downloading to directory: " + dir_path);
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+        AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+        TransferManager transferManager = new TransferManager(s3);
+
+        try {
+            MultipleFileDownload transfer = transferManager.downloadDirectory(bucket_name, key_prefix, new File(dir_path));
+            transfer.waitForCompletion();
+        } catch (Exception e) {
+            System.err.println("Unable to download directory. Received the following error: " + e.getMessage());
+        }
+        transferManager.shutdownNow();
+    }
+
     public static boolean checkForCredentials() throws IOException {
         File file = new File("credentials.txt");
         if (file.exists()) {
@@ -393,24 +402,6 @@ public class App {
         myWriter.write(AWS_ACCESS_KEYS + "\n");
         myWriter.write(AWS_SECRET_KEYS);
         myWriter.close();
-    }
-
-    private static void downloadDirectory(String bucket_name, String key_prefix, String dir_path) throws IllegalArgumentException{
-        if(!S3.doesObjectExist(CURRENT_BUCKET.getName(),key_prefix)){
-           throw new IllegalArgumentException("Remote directory does not exist");
-        }
-        System.out.println("downloading to directory: " + dir_path);
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
-        AmazonS3Client s3 = new AmazonS3Client(awsCreds);
-        TransferManager xfer_mgr = new TransferManager(s3);
-
-        try {
-            MultipleFileDownload xfer = xfer_mgr.downloadDirectory(bucket_name, key_prefix, new File(dir_path));
-            xfer.waitForCompletion();
-        } catch (Exception e) {
-            System.err.println("Unable to download directory. Received the following error: " + e.getMessage());
-        }
-        xfer_mgr.shutdownNow();
     }
 }
 
