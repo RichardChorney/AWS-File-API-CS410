@@ -91,7 +91,12 @@ public class Directory {
         }
     }
 
-    // check if directory exists by looping through
+    /**
+     *
+     * @param sourceBucket is the name of the bucket
+     * @param targetDirectory is the directory/directories to delete
+     * @return true if deleted, false otherwise
+     */
     public static boolean delDirs(String sourceBucket, String targetDirectory) {
         try {
             S3.deleteObject(sourceBucket, targetDirectory);

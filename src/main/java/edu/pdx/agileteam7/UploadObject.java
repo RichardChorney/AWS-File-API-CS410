@@ -9,6 +9,8 @@ import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.File;
 import java.util.Scanner;
@@ -70,6 +72,9 @@ public class UploadObject {
         }
     }
 
+    /**
+     * a method that deletes a file from the current bucket
+     */
     public void deleteFileFromBucket() {
             BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.AccessKey, this.SecretKey);
             AmazonS3Client s3 = new AmazonS3Client(awsCreds);
@@ -94,6 +99,9 @@ public class UploadObject {
         } catch(Exception e) {e.printStackTrace();}*/
     }
 
+    /**
+     * a method that deletes folder/directories from bucket
+     * */
     public void deleteFolderFromBucket() {
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.AccessKey, this.SecretKey);
         AmazonS3Client s3 = new AmazonS3Client(awsCreds);
@@ -137,6 +145,9 @@ public class UploadObject {
         }
     }
 
+    /**
+     * a method to rename a file in a bucket
+     */
     public void renameFile() {
         BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.AccessKey, this.SecretKey);
         AmazonS3Client s3 = new AmazonS3Client(awsCreds);
@@ -148,9 +159,7 @@ public class UploadObject {
         s3.copyObject(this.Bucket, oldKey, this.Bucket, newKey);
         s3.deleteObject(this.Bucket, oldKey);
     }
-
 }
-
 
 
 

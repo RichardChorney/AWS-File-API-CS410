@@ -11,15 +11,6 @@ public class FileHandling {
     /**
      * Method that renames a file given the path of the file and the new name of the
      * file.
-     *
-     * @param oldname is the oldname of the file.
-     * @param newname is the new name of the file (renamed to)
-     *
-     * The following params are used to define/specify the path in order to correctly rename
-     * @param os is the operating system the user is using
-     * @param name is the username in the machine
-     * @param path is any directory/directories that the user wants to add to complete the above
-     *
      * @return true if success, otherwise false.
      * */
     public static boolean rename(String old, String New) {
@@ -101,9 +92,6 @@ public class FileHandling {
     }
 
     /**
-     *
-     * @param os operating system the machine
-     * @param name name of the user
      * @param path path for the directory in order to list the files in it.
      */
     protected static void fileList(String path) {
@@ -138,8 +126,6 @@ public class FileHandling {
     }
 
     /**
-     * @param os operating system of the computer
-     * @param name name of the user in this computer
      * @param path path for the directory to list the directories in it
      */
     protected static void dirList(String path) {

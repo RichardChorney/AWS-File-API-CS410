@@ -241,7 +241,7 @@ public class App {
                                 } else if(newestCommand.equals("delDirs")) {
                                     /*System.out.println("Please enter bucket: ");
                                     String bucketName = myObj.nextLine();
-                                    System.out.println("Please enter directory (must end with / ): ");
+                                    System.out.println("Please enter directory: ");
                                     String directoryName = myObj.nextLine();
                                     boolean success = Directory.delDirs(bucketName, directoryName);
                                     if (!success) {

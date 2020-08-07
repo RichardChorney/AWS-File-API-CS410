@@ -25,8 +25,9 @@ public class FileHandlingTest {
         // expected = true
         assertEquals(expected, true);
     }
+    /*
 
-    /*@Test
+    @Test
     @Ignore
     public void firstArgShouldEndWithDotText() {
         FileHandling obj = new FileHandling();

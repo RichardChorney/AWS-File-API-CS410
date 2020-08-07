@@ -54,5 +54,14 @@ public class uploadtest {
         object.AddMultToBucket(num);
     }
 
+    @Ignore
+    @Test
+    public void fileShouldExist() {
+        UploadObject object = new UploadObject("AKIATB55VFIMT42KPLOC", "PSCgghKEugSrwEQqaIPPKXwtnb4NmLs9Kdec0LkD", "rawags");
+        Scanner obj = new Scanner(System.in);
+        System.out.print("Please enter the name of the file to delete: ");
+        String name = obj.nextLine();
+        object.deleteFileFromBucket();
+    }
 
 }
