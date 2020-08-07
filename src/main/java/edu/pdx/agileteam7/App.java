@@ -1,5 +1,6 @@
 package edu.pdx.agileteam7;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -10,7 +11,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
-//import com.sun.org.apache.xml.internal.utils.SystemIDResolver;
+import com.amazonaws.services.s3.transfer.MultipleFileDownload;
+import com.amazonaws.services.s3.transfer.TransferManager;
+import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 //import com.sun.tools.javac.comp.Env;
 import java.io.*;
 import javax.sound.midi.SysexMessage;
@@ -32,19 +35,6 @@ public class App {
     public static AmazonS3 S3;
 
     public static void main(String[] args) {
-        final String USAGE = "\n" +
-                "Commands \n" +
-                "q: to quit\n" +
-                "ls: list buckets\n" +
-                "cb: to create new bucket\n" +
-                "gb: to get a bucket\n" +
-                "mkdir: make directory\n" +
-                "cp: copy directory\n" +
-                "adfl: add 1 file to bucket\n" +
-                "adMfl: adds mult. files\n" +
-                "list: list dictionaries and files in local machine\n" +
-                "rename: rename file in local machine\n";
-
         final String Main_Menu = "\n" +
                 "You are in the main menu\n" +
                 "Commands \n" +
@@ -56,6 +46,7 @@ public class App {
                 "You are in the remote menu\n" +
                 "Commands \n" +
                 "b: to go back\n" +
+                "ls: list buckets\n" +
                 "cb: to create new bucket\n" +
                 "gb: to get a bucket\n" +
                 "vgl: view logs of buckets\n";
@@ -64,6 +55,18 @@ public class App {
                 "b: to go back\n" +
                 "list: list dictionaries and files in local machine\n" +
                 "rename: rename file in local machine\n";
+
+        final String bucketMenu= "\n" +
+                "Please enter one of the following commands.\n" +
+                "b: return to the previous menu\n" +
+                "mkdir: make directory\n" +
+                "cp: copy directory\n" +
+                "adfl: add 1 file to bucket\n" +
+                "adMfl: adds mult. files\n" +
+                "ls: list the objects in the current bucket\n" +
+                "go: Downloads the object to local machine\n" +
+                "gm: Downloads multiple objects to local machine\n" +
+                "gd: Downloads directory to local machine";
 
         // Asks for user input
         String newestCommand = "";
@@ -82,16 +85,16 @@ public class App {
                 } catch (IOException e) {
                     System.out.println("Unable to retrieve credentials");
                 }
+            } else {
+                System.out.println("Credentials file not used..");
             }
         }
 
         if (!credentialsUsed) {
             System.out.println("Please enter access key: ");
             AWS_ACCESS_KEYS = myObj.nextLine();
-//        AWS_ACCESS_KEYS = "AKIATB55VFIM6ETVL7AA";
             System.out.println("Please enter secret key: ");
             AWS_SECRET_KEYS = myObj.nextLine();
-//        AWS_SECRET_KEYS = "wPVnQ4S5RUuoZoZTOhFrOZnwyUu830/hck04oqD4";
         }
 
         // Checks for valid AWS credentials
@@ -150,22 +153,12 @@ public class App {
                         }
 
                         if (CURRENT_BUCKET != null && !vglAccessed) {
+                            System.out.println("\nBucket accessed.");
                             while (true) {
-                                System.out.println("\nBucket accessed. Please enter one of the following commands.\n" +
-                                        "b: return to the previous menu\n" +
-                                        "mkdir: make directory\n" +
-                                        "cp: copy directory\n" +
-                                        "adfl: add 1 file to bucket\n" +
-                                        "adMfl: adds mult. files\n" +
-                                        "ls: list the objects in the current bucket\n" +
-                                        "go: Downloads the object to local machine\n" +
-                                        "gm: Downloads multiple objects to local machine\n" +
-                                        "delfl: delete file from bucket\n" +
-                                        "delDirs: delete directories\n" +
-                                        "rename: rename file\n"
-                                );
+                                System.out.println(bucketMenu);
                                 newestCommand = myObj.nextLine();
                                 if (newestCommand.equals("b")) {
+                                    CURRENT_BUCKET = null;
                                     break;
                                 } else if (newestCommand.equals("ls")) {
                                     Buckets.listObjects(CURRENT_BUCKET.getName());
@@ -198,15 +191,21 @@ public class App {
                                     } catch (NumberFormatException e) {
                                         System.out.println("Invalid number. Please enter a whole number <= 5");
                                     }
+                                } else if (newestCommand.equals("gd")) {
+                                    System.out.println("Please enter the name of the remote directory you want to copy(must end with / ): ");
+                                    String remoteDirectory = myObj.nextLine();
+                                    System.out.println("Please enter the name of the local directory you want to be copied into (must end with / ): ");
+                                    String localDirectory = myObj.nextLine();
+                                    try{
+                                        downloadDirectory(CURRENT_BUCKET.getName(), remoteDirectory, localDirectory);
+                                    }catch(Exception e){
+                                        System.err.println("Directory could not be downloaded. Received the following error: " + e.getMessage());
+                                    }
                                 } else if (newestCommand.equals("mkdir")) {
-
-                                    //User Input
-                                    System.out.println("Please enter bucket: ");
-                                    String bucketName = myObj.nextLine();
                                     System.out.println("Please enter directory (must end with / ): ");
                                     String directoryName = myObj.nextLine();
                                     //Calls directory creation function
-                                    boolean success = Directory.mkdir(bucketName, directoryName);
+                                    boolean success = Directory.mkdir(CURRENT_BUCKET.getName(), directoryName);
                                     //Barks failure on function returning an error
                                     if (!success) {
                                         System.out.println("Directory creation failed.");
@@ -234,94 +233,67 @@ public class App {
                                     System.out.println("Enter how many files you want to upload");
                                     int num = myObj.nextInt();
                                     object.AddMultToBucket(num);
-                                } else if(newestCommand.equals("delfl")) {
-                                    // delete file from bucket
-                                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
-                                    object.deleteFileFromBucket();
-                                } else if(newestCommand.equals("delDirs")) {
-                                    /*System.out.println("Please enter bucket: ");
-                                    String bucketName = myObj.nextLine();
-                                    System.out.println("Please enter directory: ");
-                                    String directoryName = myObj.nextLine();
-                                    boolean success = Directory.delDirs(bucketName, directoryName);
-                                    if (!success) {
-                                        System.out.println("Directory deletion failed.");
-                                    }*/
-                                    UploadObject obj = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
-                                    obj.deleteFolderFromBucket();
-                                } else if(newestCommand.equals("rename")) {
-                                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
-                                    object.renameFile();
-                                } else{
+                                } else {
                                     System.out.println("Please enter a valid command");
                                 }
                             }
                         }
                     }
-                } else if (newestCommand.equals("l")) {
-                        System.out.print(Local);
-                        newestCommand = myObj.nextLine();
-                        if(newestCommand.equals("list")) {
-                            String option = new String();
-                            String path = new String();
-                            System.out.print("Please enter the path of the directory: ");
-                            path = myObj.nextLine();
-                            /*System.out.print("Please enter the OS you're using: ");
-                            String os = myObj.nextLine();
-                            System.out.print("Please enter the name of the user: ");
-                            String name = myObj.nextLine();
-                            System.out.print("Are there other directories that you would like to add to the path? ");
-                            String path = new String();
-                            if(option.substring(0,1).toUpperCase().equals("Y")) {
-                                System.out.print("Please enter the name of the directory" +
-                                        "(if it's more than one directories ahead, please put a '/' afterwards): ");
-                                path = myObj.nextLine();
-                            } else if(option.substring(0,1).toUpperCase().equals("N")) {
-                                path = "";
-                            } else {
-                                System.out.println("Please enter a valid answer.");
-                            }*/
-                            System.out.print("Would you like to have all files or directories printed? ");
-                            option = myObj.nextLine();
-                            if(option.toUpperCase().equals("FILES")) {
-                                FileHandling.fileList(path);
-                            } else {
-                                FileHandling.dirList(path);
-                            }
-                        } else if(newestCommand.equals("rename")) {
-                            /*String path = new String();
-                            System.out.print("Please enter the OS you're using: ");
-                            String os = myObj.nextLine();
-                            System.out.print("Please enter the name of the user: ");
-                            String name = myObj.nextLine();
-                            System.out.print("Are there other directories that you would like to add to the path? ");
-                            String option = myObj.nextLine();
-                            if(option.substring(0,1).toUpperCase().equals("Y")) {
-                                System.out.print("Please enter the name of the directory" +
-                                        "(if it's more than one directories ahead, please put a '/' afterwards): ");
-                                path = myObj.nextLine();
-                            } else if(option.substring(0,1).toUpperCase().equals("N")) {
-                                path = "";
-                            } else {
-                                System.out.println("Please enter a valid answer");
-                            }
-                            System.out.print("Please enter the file name: ");
-                            String old = myObj.nextLine();
+                } else if (myObj.equals("l")) {
+                    // Put the local code here
 
-                            System.out.print("Please enter the new name: ");
-                            String newName = myObj.nextLine();
-                            FileHandling.rename(old, newName, os, name, path);*/
-                            String old = new String();
-                            String New = new String();
-                            System.out.print("Please enter the path of the file: ");
-                            old = myObj.nextLine();
-                            System.out.print("Please enter the path of the file with the new name: ");
-                            New = myObj.nextLine();
-                            FileHandling.rename(old, New);
-                        }
-                }
+//                    if(newestCommand.equals("list")) {
+//                        System.out.print("Please enter the OS you're using: ");
+//                        String os = myObj.nextLine();
+//                        System.out.print("Please enter the name of the user: ");
+//                        String name = myObj.nextLine();
+//                        System.out.print("Are there other directories that you would like to add to the path? ");
+//                        String option = myObj.nextLine();
+//                        String path = new String();
+//                        if(option.substring(0,1).toUpperCase().equals("Y")) {
+//                            System.out.print("Please enter the name of the directory" +
+//                                    "(if it's more than one directories ahead, please put a '/' afterwards): ");
+//                            path = myObj.nextLine();
+//                        } else if(option.substring(0,1).toUpperCase().equals("N")) {
+//                            path = "";
+//                        } else {
+//                            System.out.println("Please enter a valid answer.");
+//                        }
+//
+//                        System.out.print("Would you like to have all files or directories printed? ");
+//                        option = myObj.nextLine();
+//                        if(option.toUpperCase().equals("FILES")) {
+//                            FileHandling.fileList(os, name, path);
+//                        } else {
+//                            FileHandling.dirList(os, name, path);
+//                        }
+//                    } else if(newestCommand.equals("rename")) {
+//                        String path = new String();
+//                        System.out.print("Please enter the OS you're using: ");
+//                        String os = myObj.nextLine();
+//                        System.out.print("Please enter the name of the user: ");
+//                        String name = myObj.nextLine();
+//                        System.out.print("Are there other directories that you would like to add to the path? ");
+//                        String option = myObj.nextLine();
+//                        if(option.substring(0,1).toUpperCase().equals("Y")) {
+//                            System.out.print("Please enter the name of the directory" +
+//                                    "(if it's more than one directories ahead, please put a '/' afterwards): ");
+//                            path = myObj.nextLine();
+//                        } else if(option.substring(0,1).toUpperCase().equals("N")) {
+//                            path = "";
+//                        } else {
+//                            System.out.println("Please enter a valid answer");
+//                        }
+//
+//                        System.out.print("Please enter the file name: ");
+//                        String old = myObj.nextLine();
+//
+//                        System.out.print("Please enter the new name: ");
+//                        String newName = myObj.nextLine();
+//                        FileHandling.rename(old, newName, os, name, path);
+//                    }
 
-                else {
+                } else {
                     System.out.println("Please enter a valid command");
                 }
 
@@ -385,14 +357,28 @@ public class App {
             }
             s3is.close();
             fos.close();
-        } catch (AmazonServiceException e) {
-            System.err.println(e.getErrorMessage());
-            return false;
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
+        } catch (Exception e) {
             return false;
         }
         return true;
+    }
+
+    private static void downloadDirectory(String bucket_name, String key_prefix, String dir_path) throws IllegalArgumentException{
+        if(!S3.doesObjectExist(CURRENT_BUCKET.getName(),key_prefix)){
+            throw new IllegalArgumentException("Remote directory does not exist");
+        }
+        System.out.println("downloading to directory: " + dir_path);
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+        AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+        TransferManager transferManager = new TransferManager(s3);
+
+        try {
+            MultipleFileDownload transfer = transferManager.downloadDirectory(bucket_name, key_prefix, new File(dir_path));
+            transfer.waitForCompletion();
+        } catch (Exception e) {
+            System.err.println("Unable to download directory. Received the following error: " + e.getMessage());
+        }
+        transferManager.shutdownNow();
     }
 
     public static boolean checkForCredentials() throws IOException {
