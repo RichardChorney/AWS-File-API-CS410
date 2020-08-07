@@ -20,7 +20,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.Scanner;
-
+import java.util.Timer;
+import java.util.TimerTask;
 /**
  *
  */
@@ -29,6 +30,8 @@ public class App {
     public static String AWS_SECRET_KEYS = "";
     public static Bucket CURRENT_BUCKET;
     public static AmazonS3 S3;
+    private static Timer timer;
+
 
     public static void main(String[] args) {
         final String USAGE = "\n" +
@@ -66,6 +69,7 @@ public class App {
 
         // Asks for user input
         String newestCommand = "";
+
         Scanner myObj = new Scanner(System.in);
 
         boolean credentialsUsed = false;
@@ -101,9 +105,14 @@ public class App {
             System.exit(1);
         }
 
+
+
+
         System.out.println("Login Successful");
 
         int callCounts = 0;
+
+
 
         // Main driver that checks for user commands
         while (true) {
@@ -150,6 +159,13 @@ public class App {
 
                         if (CURRENT_BUCKET != null && !vglAccessed) {
                             while (true) {
+
+                               Counter IdleCounter = new Counter(60);
+
+
+
+
+
                                 System.out.println("\nBucket accessed. Please enter one of the following commands.\n" +
                                         "b: return to the previous menu\n" +
                                         "mkdir: make directory\n" +
@@ -159,8 +175,14 @@ public class App {
                                         "ls: list the objects in the current bucket\n" +
                                         "go: Downloads the object to local machine\n" +
                                         "gm: Downloads multiple objects to local machine\n");
+
+
+
                                 newestCommand = myObj.nextLine();
+                                IdleCounter.StopClock();
+
                                 if (newestCommand.equals("b")) {
+
                                     break;
                                 } else if (newestCommand.equals("ls")) {
                                     Buckets.listObjects(CURRENT_BUCKET.getName());
@@ -334,6 +356,7 @@ public class App {
         }
     }
 
+
     /**
      * A method to download an object from a remote server
      *
@@ -386,4 +409,8 @@ public class App {
         myWriter.write(AWS_SECRET_KEYS);
         myWriter.close();
     }
+
+
+
+
 }
