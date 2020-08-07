@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
+//import com.sun.org.apache.xml.internal.utils.SystemIDResolver;
 
 import java.util.List;
 
@@ -85,6 +86,22 @@ public class Directory {
             System.out.println("Directory " + sourceDirectory + " copied to " + targetDirectory);
 
             return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     *
+     * @param sourceBucket is the name of the bucket
+     * @param targetDirectory is the directory/directories to delete
+     * @return true if deleted, false otherwise
+     */
+    public static boolean delDirs(String sourceBucket, String targetDirectory) {
+        try {
+            S3.deleteObject(sourceBucket, targetDirectory);
+            return true;
+
         } catch (Exception e) {
             return false;
         }
