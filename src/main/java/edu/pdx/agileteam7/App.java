@@ -10,6 +10,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
+//import com.sun.org.apache.xml.internal.utils.SystemIDResolver;
 //import com.sun.tools.javac.comp.Env;
 import java.io.*;
 import javax.sound.midi.SysexMessage;
@@ -158,7 +159,11 @@ public class App {
                                         "adMfl: adds mult. files\n" +
                                         "ls: list the objects in the current bucket\n" +
                                         "go: Downloads the object to local machine\n" +
-                                        "gm: Downloads multiple objects to local machine\n");
+                                        "gm: Downloads multiple objects to local machine\n" +
+                                        "delfl: delete file from bucket\n" +
+                                        "delDirs: delete directories\n" +
+                                        "rename: rename file\n"
+                                );
                                 newestCommand = myObj.nextLine();
                                 if (newestCommand.equals("b")) {
                                     break;
@@ -225,72 +230,98 @@ public class App {
                                     object.AddToBucket();
 
                                 } else if (newestCommand.equals("adMfl")) {
-
                                     UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
                                     System.out.println("Enter how many files you want to upload");
                                     int num = myObj.nextInt();
                                     object.AddMultToBucket(num);
-                                } else {
+                                } else if(newestCommand.equals("delfl")) {
+                                    // delete file from bucket
+                                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
+                                    object.deleteFileFromBucket();
+                                } else if(newestCommand.equals("delDirs")) {
+                                    /*System.out.println("Please enter bucket: ");
+                                    String bucketName = myObj.nextLine();
+                                    System.out.println("Please enter directory (must end with / ): ");
+                                    String directoryName = myObj.nextLine();
+                                    boolean success = Directory.delDirs(bucketName, directoryName);
+                                    if (!success) {
+                                        System.out.println("Directory deletion failed.");
+                                    }*/
+                                    UploadObject obj = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
+                                    obj.deleteFolderFromBucket();
+                                } else if(newestCommand.equals("rename")) {
+                                    UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
+                                    object.renameFile();
+                                } else{
                                     System.out.println("Please enter a valid command");
                                 }
                             }
                         }
                     }
-                } else if (myObj.equals("l")) {
-                    // Put the local code here
+                } else if (newestCommand.equals("l")) {
+                        System.out.print(Local);
+                        newestCommand = myObj.nextLine();
+                        if(newestCommand.equals("list")) {
+                            String option = new String();
+                            String path = new String();
+                            System.out.print("Please enter the path of the directory: ");
+                            path = myObj.nextLine();
+                            /*System.out.print("Please enter the OS you're using: ");
+                            String os = myObj.nextLine();
+                            System.out.print("Please enter the name of the user: ");
+                            String name = myObj.nextLine();
+                            System.out.print("Are there other directories that you would like to add to the path? ");
+                            String path = new String();
+                            if(option.substring(0,1).toUpperCase().equals("Y")) {
+                                System.out.print("Please enter the name of the directory" +
+                                        "(if it's more than one directories ahead, please put a '/' afterwards): ");
+                                path = myObj.nextLine();
+                            } else if(option.substring(0,1).toUpperCase().equals("N")) {
+                                path = "";
+                            } else {
+                                System.out.println("Please enter a valid answer.");
+                            }*/
+                            System.out.print("Would you like to have all files or directories printed? ");
+                            option = myObj.nextLine();
+                            if(option.toUpperCase().equals("FILES")) {
+                                FileHandling.fileList(path);
+                            } else {
+                                FileHandling.dirList(path);
+                            }
+                        } else if(newestCommand.equals("rename")) {
+                            /*String path = new String();
+                            System.out.print("Please enter the OS you're using: ");
+                            String os = myObj.nextLine();
+                            System.out.print("Please enter the name of the user: ");
+                            String name = myObj.nextLine();
+                            System.out.print("Are there other directories that you would like to add to the path? ");
+                            String option = myObj.nextLine();
+                            if(option.substring(0,1).toUpperCase().equals("Y")) {
+                                System.out.print("Please enter the name of the directory" +
+                                        "(if it's more than one directories ahead, please put a '/' afterwards): ");
+                                path = myObj.nextLine();
+                            } else if(option.substring(0,1).toUpperCase().equals("N")) {
+                                path = "";
+                            } else {
+                                System.out.println("Please enter a valid answer");
+                            }
+                            System.out.print("Please enter the file name: ");
+                            String old = myObj.nextLine();
 
-//                    if(newestCommand.equals("list")) {
-//                        System.out.print("Please enter the OS you're using: ");
-//                        String os = myObj.nextLine();
-//                        System.out.print("Please enter the name of the user: ");
-//                        String name = myObj.nextLine();
-//                        System.out.print("Are there other directories that you would like to add to the path? ");
-//                        String option = myObj.nextLine();
-//                        String path = new String();
-//                        if(option.substring(0,1).toUpperCase().equals("Y")) {
-//                            System.out.print("Please enter the name of the directory" +
-//                                    "(if it's more than one directories ahead, please put a '/' afterwards): ");
-//                            path = myObj.nextLine();
-//                        } else if(option.substring(0,1).toUpperCase().equals("N")) {
-//                            path = "";
-//                        } else {
-//                            System.out.println("Please enter a valid answer.");
-//                        }
-//
-//                        System.out.print("Would you like to have all files or directories printed? ");
-//                        option = myObj.nextLine();
-//                        if(option.toUpperCase().equals("FILES")) {
-//                            FileHandling.fileList(os, name, path);
-//                        } else {
-//                            FileHandling.dirList(os, name, path);
-//                        }
-//                    } else if(newestCommand.equals("rename")) {
-//                        String path = new String();
-//                        System.out.print("Please enter the OS you're using: ");
-//                        String os = myObj.nextLine();
-//                        System.out.print("Please enter the name of the user: ");
-//                        String name = myObj.nextLine();
-//                        System.out.print("Are there other directories that you would like to add to the path? ");
-//                        String option = myObj.nextLine();
-//                        if(option.substring(0,1).toUpperCase().equals("Y")) {
-//                            System.out.print("Please enter the name of the directory" +
-//                                    "(if it's more than one directories ahead, please put a '/' afterwards): ");
-//                            path = myObj.nextLine();
-//                        } else if(option.substring(0,1).toUpperCase().equals("N")) {
-//                            path = "";
-//                        } else {
-//                            System.out.println("Please enter a valid answer");
-//                        }
-//
-//                        System.out.print("Please enter the file name: ");
-//                        String old = myObj.nextLine();
-//
-//                        System.out.print("Please enter the new name: ");
-//                        String newName = myObj.nextLine();
-//                        FileHandling.rename(old, newName, os, name, path);
-//                    }
+                            System.out.print("Please enter the new name: ");
+                            String newName = myObj.nextLine();
+                            FileHandling.rename(old, newName, os, name, path);*/
+                            String old = new String();
+                            String New = new String();
+                            System.out.print("Please enter the path of the file: ");
+                            old = myObj.nextLine();
+                            System.out.print("Please enter the path of the file with the new name: ");
+                            New = myObj.nextLine();
+                            FileHandling.rename(old, New);
+                        }
+                }
 
-                } else {
+                else {
                     System.out.println("Please enter a valid command");
                 }
 

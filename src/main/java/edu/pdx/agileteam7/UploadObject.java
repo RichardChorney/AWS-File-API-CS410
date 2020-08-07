@@ -1,8 +1,13 @@
 package edu.pdx.agileteam7;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.SdkClientException;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.dynamodbv2.xspec.S;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 import java.io.IOException;
 import java.io.File;
@@ -65,6 +70,46 @@ public class UploadObject {
         }
     }
 
+    public void deleteFileFromBucket() {
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.AccessKey, this.SecretKey);
+            AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+            String bucket_name = this.Bucket;
+            Scanner myObj = new Scanner(System.in);
+            System.out.print("Please enter the name of the file: (i.e. file.txt)");
+            String object_key = myObj.nextLine();
+            try {
+                s3.deleteObject(bucket_name, object_key);
+            } catch(AmazonServiceException e) {
+                System.err.println(e.getErrorMessage());
+                System.exit(1);
+            }
+        /*try {
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.AccessKey, this.SecretKey);
+            AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+            Scanner myObj = new Scanner(System.in);
+            System.out.println("Please enter the path of the file i.e. src/main/test.txt \n");
+            FilePath = myObj.nextLine();
+            s3.deleteObject(this.Bucket, FilePath);
+
+        } catch(Exception e) {e.printStackTrace();}*/
+    }
+
+    public void deleteFolderFromBucket() {
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.AccessKey, this.SecretKey);
+        AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+        String bucket_name = this.Bucket;
+        Scanner myObj = new Scanner(System.in);
+        System.out.print("Please enter the name of the folder: ");
+        String object_keys = myObj.nextLine();
+        ObjectListing objects = s3.listObjects(bucket_name, object_keys);
+        for(S3ObjectSummary os : objects.getObjectSummaries()) {
+            try {
+                s3.deleteObject(bucket_name, os.getKey());
+            } catch(AmazonServiceException e) {System.err.print(e.getErrorMessage());}
+        }
+
+    }
+
     public void AddMultToBucket(int count) {
         String FileName = "";
         String FilePath = "";
@@ -91,6 +136,19 @@ public class UploadObject {
             p.printStackTrace();
         }
     }
+
+    public void renameFile() {
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.AccessKey, this.SecretKey);
+        AmazonS3Client s3 = new AmazonS3Client(awsCreds);
+        Scanner myObj = new Scanner(System.in);
+        System.out.println("Please enter the name of the file to rename: ");
+        String oldKey = myObj.nextLine();
+        System.out.println("Please enter the new name of the file: ");
+        String newKey = myObj.nextLine();
+        s3.copyObject(this.Bucket, oldKey, this.Bucket, newKey);
+        s3.deleteObject(this.Bucket, oldKey);
+    }
+
 }
 
 

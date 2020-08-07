@@ -22,15 +22,23 @@ public class FileHandling {
      *
      * @return true if success, otherwise false.
      * */
-    public static boolean rename(String oldname, String newname, String os, String name, String path) {
-        if ((os.substring(0, 3).toUpperCase().equals("mac".toUpperCase()))){
+    public static boolean rename(String old, String New) {
+        File oldName = new File(old);
+        File newName = new File(New);
+        System.out.println(oldName);
+        if (oldName.renameTo(newName)) {
+            return true;
+        } else {
+            return false;
+        }
+        /*if ((os.substring(0, 3).toUpperCase().equals("mac".toUpperCase()))){
                 os = "Users";
         /*} else if(os.equals("windows")) {
             os = "C:\\";
 
         } else {
             os = "/";
-        }*/
+        }*
             os = "/" + os;
             name = "/" + name;
             path = "/" + path;
@@ -89,7 +97,7 @@ public class FileHandling {
             } else {
                 return false;
             }
-        }
+        }*/
     }
 
     /**
@@ -98,8 +106,14 @@ public class FileHandling {
      * @param name name of the user
      * @param path path for the directory in order to list the files in it.
      */
-    protected static void fileList(String os, String name, String path) {
-        if(os.substring(0,3).toUpperCase().equals("mac".toUpperCase())) {
+    protected static void fileList(String path) {
+        System.out.println("Files: \n");
+        File dir = new File(path);
+        File[] filesInDir = dir.listFiles();
+        for(File file : filesInDir) {
+            System.out.println(file.getName());
+        }
+        /*if(os.substring(0,3).toUpperCase().equals("mac".toUpperCase())) {
             os = "Users";
         } else if(os.equals("windows")) {
             os = "C:\\";
@@ -120,7 +134,7 @@ public class FileHandling {
             for(File file : filesInDir) {
                 System.out.println(file.getName());
             }
-        }
+        }*/
     }
 
     /**
@@ -128,7 +142,23 @@ public class FileHandling {
      * @param name name of the user in this computer
      * @param path path for the directory to list the directories in it
      */
-    protected static void dirList(String os, String name, String path) {
+    protected static void dirList(String path) {
+        String dirName = new String();
+        dirName = path;
+        File file = new File(path);
+        if(file.isDirectory()) {
+            System.out.println("Directories in " + path + ":");
+            String str[] = file.list();
+            for(int i = 0; i < str.length; i++) {
+                File f = new File(dirName + "" + str[i]);
+                if(f.isDirectory()) {
+                    System.out.println(str[i]);
+                }
+            }
+        }
+
+
+        /*
         String dirName = new String();
         if(os.substring(0,3).toUpperCase().equals("mac".toUpperCase())) {
              os = "Users";
@@ -153,6 +183,6 @@ public class FileHandling {
                     System.out.println(str[i]);
                 }
             }
-        }
+        }*/
     }
 }
