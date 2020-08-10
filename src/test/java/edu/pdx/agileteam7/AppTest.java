@@ -21,7 +21,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -80,7 +79,6 @@ public class AppTest {
         assertThat(App.checkForCredentials(), equalTo(true));
     }
 
-    @Ignore
     //This test requires manually deleting autoTestFolder/ every time until
     //the delete directory function is implemented and can be used for this test in the setup.
     @Test
@@ -134,7 +132,6 @@ public class AppTest {
         assertEquals(1, match);
     }
 
-    @Ignore
     //This test requires manually deleting autoTestFolder/ every time until
     //the delete directory function is implemented and can be used for this test in the setup.
     @Test
