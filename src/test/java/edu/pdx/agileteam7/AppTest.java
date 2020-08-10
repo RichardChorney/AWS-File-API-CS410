@@ -208,5 +208,52 @@ public class AppTest {
         assertEquals(1, fileCopiedInt);
     }
 
+    @Test public void testDeleteDirectories () {
+        int match = 0;
+
+        App.AWS_ACCESS_KEYS = "AKIATB55VFIMT42KPLOC";
+        App.AWS_SECRET_KEYS = "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";
+
+        //Initializes AWS S3 object
+        BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
+        final AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(awsCreds)).withRegion(Regions.US_EAST_1).build();
+
+        //Auto Input
+        String bucketName = "rawags";
+        boolean output = Directory.mkdir(bucketName, "directory");
+        if (!output) {
+            System.out.println("Directory creation failed.");
+        }
+
+        // delete directory
+        boolean result = Directory.delDirs(bucketName, "directory");
+        if(!result) {System.out.print("Directory deletion failed.");}
+
+        //Creates List of Object Keys
+        ListObjectsV2Result bucketObjectList = s3.listObjectsV2("rawags");
+        List<S3ObjectSummary> objects = bucketObjectList.getObjectSummaries();
+
+        //Iterates through list looking for new directory, sets match to 1 if found
+        for (S3ObjectSummary os : objects) {
+            String matchString = os.getKey();
+
+            //Matched which key name starts with input sourceDirectory string
+            if (matchString.equals("directory/")) {
+                match = 0;
+            }
+            if (match == 0) {
+                break;
+            }
+        }
+
+        //Barks test status
+        if (match == 0)
+            System.out.println("Test delete directory: Pass");
+        else
+            System.out.println("Test delete directory: Fail");
+
+        //If the directory exists match will be 1 and test passes.
+        assertEquals(0, match);
+    }
 }
 

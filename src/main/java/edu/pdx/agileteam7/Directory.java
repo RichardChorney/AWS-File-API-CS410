@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
+//import com.sun.org.apache.xml.internal.utils.SystemIDResolver;
 
 import java.util.List;
 
@@ -50,11 +51,6 @@ public class Directory {
      */
     public static boolean cp(String sourceBucket, String sourceDirectory, String targetBucket, String targetDirectory) {
         try {
-            //Creates a request object which sets the delimiter ahead of list creation
-            //Ended up not needing but keeping code up for now as a demonstration-reference.
-
-            //ListObjectsV2Request request = new ListObjectsV2Request().withBucketName(sourceBucket).withDelimiter("/");
-
             //List of bucket objects is created using a bucket name or a ListObjectsV2Request object
             ListObjectsV2Result bucketObjectList = S3.listObjectsV2(sourceBucket);
 
@@ -83,6 +79,160 @@ public class Directory {
 
             //Barks directory copy success
             System.out.println("Directory " + sourceDirectory + " copied to " + targetDirectory);
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     *
+     * @param sourceBucket is the name of the bucket
+     * @param targetDirectory is the directory/directories to delete
+     * @return true if deleted, false otherwise
+     */
+    public static boolean delDirs(String sourceBucket, String targetDirectory) {
+        try {
+            S3.deleteObject(sourceBucket, targetDirectory);
+            return true;
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Function which changes the permissions on a file inside a bucket. Asks the user for a canonical ID from AWS.
+     * Adds a grant to that file with the given permission for the given ID.
+     * AWS seems to intentionally hold duplicate grants in a file's grant list.
+     * @param sourceBucket
+     * @param targetFile
+     * @param permissionID
+     * @param permissionLevel
+     * @return
+     */
+    public static boolean changePermission(String sourceBucket, String targetFile, String permissionID, String permissionLevel) {
+        try {
+            //Uses AWS S3 object to create an access control list object which holds the file's
+            //permissions known as grants
+            AccessControlList objectPermissions = S3.getObjectAcl(sourceBucket, targetFile);
+
+            //Grant and permission objects are initialized based on input strings
+            Grantee granteeID = new CanonicalGrantee(permissionID);
+            Permission permission = Permission.valueOf(permissionLevel);
+
+            //List of grants is creates to display grants to user before changing them
+            List<Grant> grantsList = objectPermissions.getGrantsAsList();
+
+            //Iterates through grants list and displays to user. The first entry on the
+            //list will always be the owner so the loop is formatted to give a different header
+            //for the first entry.
+            boolean firstTimeThroughLoop = true;
+            for (Grant grant : grantsList) {
+                if (firstTimeThroughLoop == true) {
+                    System.out.println("ORIGINAL FILE PERMISSIONS:");
+                    System.out.println("  File Owner ID : Permission ");
+                    firstTimeThroughLoop = false;
+                } else
+                    System.out.println("  Additional Grantee ID : Permission");
+                System.out.format("    %s: %s\n", grant.getGrantee().getIdentifier(), grant.getPermission().toString());
+            }
+
+            //Adds permission to permission list object
+            objectPermissions.grantPermission(granteeID, permission);
+
+            //Permission list object is uploaded to AWS and saved.
+            S3.setObjectAcl(sourceBucket, targetFile, objectPermissions);
+
+            //List for display is updated after the grant was added.
+            grantsList = objectPermissions.getGrantsAsList();
+
+            //Iterates through list displaying grants to user
+            firstTimeThroughLoop = true;
+            for (Grant grant : grantsList) {
+                if (firstTimeThroughLoop == true) {
+                    System.out.println("ORIGINAL FILE PERMISSIONS:");
+                    System.out.println("  File Owner ID : Permission ");
+                    firstTimeThroughLoop = false;
+                } else
+                    System.out.println("  Additional Grantee ID : Permission");
+                System.out.format("    %s: %s\n", grant.getGrantee().getIdentifier(), grant.getPermission().toString());
+            }
+
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * Function which changes the permissions on a bucket. Asks the user for a canonical ID from AWS.
+     * Adds a grant to that bucket with the given permission for the given ID.
+     * AWS seems to intentionally hold duplicate grants in a bucket's grant list.
+     * @param sourceBucket
+     * @param permissionID
+     * @param permissionLevel
+     * @return
+     */
+    public static boolean changePermissionBucket(String sourceBucket, String permissionID, String permissionLevel) {
+        try {
+            //Uses AWS S3 object to create an access control list object which holds the buckets
+            //permissions known as grants
+            AccessControlList objectPermissions = S3.getBucketAcl(sourceBucket);
+
+            //Grant and permission objects are initialized based on input strings
+            Grantee granteeID = new CanonicalGrantee(permissionID);
+            Permission permission = Permission.valueOf(permissionLevel);
+
+            //List of grants is creates to display grants to user before changing them
+            List<Grant> grantsList = objectPermissions.getGrantsAsList();
+
+            //Iterates through grants list and displays to user. The first entry on the
+            //list will always be the owner so the loop is formatted to give a different header
+            //for the first entry. The 1st entry is listed twice so the loop is also formatted
+            //to skip displaying the 2nd entry.
+            int firstTimeThroughLoop = 1;
+            for(Grant grant : grantsList){
+                if(firstTimeThroughLoop == 1) {
+                    System.out.println("ORIGINAL BUCKET PERMISSIONS:");
+                    System.out.println("  Bucket Owner ID : Permission ");
+                    --firstTimeThroughLoop;
+                }
+                else if(firstTimeThroughLoop == 0) {
+                    --firstTimeThroughLoop;
+                    continue;
+                }
+                else
+                    System.out.println("  Additional Grantee ID : Permission");
+                System.out.format("    %s: %s\n", grant.getGrantee().getIdentifier(), grant.getPermission().toString());
+            }
+
+            //Adds permission to permission list object
+            objectPermissions.grantPermission(granteeID, permission);
+
+            //Permission list object is uploaded to AWS and saved.
+            S3.setBucketAcl(sourceBucket,objectPermissions);
+
+            //List for display is updated after the grant was added.
+            grantsList = objectPermissions.getGrantsAsList();
+
+            //Iterates through list displaying grants to user
+            firstTimeThroughLoop = 1;
+            for(Grant grant : grantsList){
+                if(firstTimeThroughLoop == 1) {
+                    System.out.println("UPDATED BUCKET PERMISSIONS");
+                    System.out.println("  Bucket Owner ID : Permission ");
+                    --firstTimeThroughLoop;
+                }
+                else if(firstTimeThroughLoop == 0) {
+                    --firstTimeThroughLoop;
+                    continue;
+                }
+                else
+                    System.out.println("  Additional Grantee ID : Permission");
+                System.out.format("    %s: %s\n", grant.getGrantee().getIdentifier(), grant.getPermission().toString());
+            }
 
             return true;
         } catch (Exception e) {

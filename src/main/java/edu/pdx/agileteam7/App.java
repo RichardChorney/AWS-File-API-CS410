@@ -49,7 +49,8 @@ public class App {
                 "ls: list buckets\n" +
                 "cb: to create new bucket\n" +
                 "gb: to get a bucket\n" +
-                "vgl: view logs of buckets\n";
+                "vgl: view logs of buckets\n" +
+                "chper: change bucket permission levels\n";
 
         final String Local = "\n" +
                 "b: to go back\n" +
@@ -66,7 +67,8 @@ public class App {
                 "ls: list the objects in the current bucket\n" +
                 "go: Downloads the object to local machine\n" +
                 "gm: Downloads multiple objects to local machine\n" +
-                "gd: Downloads directory to local machine";
+                "gd: Downloads directory to local machine\n" +
+                "chper: change permission for file";
 
         // Asks for user input
         String newestCommand = "";
@@ -147,7 +149,22 @@ public class App {
                             CURRENT_BUCKET = Buckets.getBucket("logsagile");
                             Buckets.listObjects("logsagile");
                             vglAccessed = true;
-                        } else {
+                        } else if(newestCommand.equals("chper")){
+                            //User Input
+                            System.out.println("Please enter the bucket name: ");
+                            String targetBucket = myObj.nextLine();
+                            System.out.println("Please enter AWS canonical ID: ");
+                            String permissionID = myObj.nextLine();
+                            System.out.println("FullControl Read ReadAcp Write WriteAcp\nPlease enter permission level: ");
+                            String permissionLevel = myObj.nextLine();
+                            //Calls bucket permission changing function
+                            boolean success = Directory.changePermissionBucket(targetBucket,permissionID,permissionLevel);
+                            //Barks failure on chper returning an error
+                            if (!success) {
+                                System.out.println("Permission change failed.");
+                            }
+                        }
+                        else {
                             System.out.println("Please enter a valid command");
                             continue;
                         }
@@ -196,12 +213,12 @@ public class App {
                                     String remoteDirectory = myObj.nextLine();
                                     System.out.println("Please enter the name of the local directory you want to be copied into (must end with / ): ");
                                     String localDirectory = myObj.nextLine();
-                                    try{
+                                    try {
                                         downloadDirectory(CURRENT_BUCKET.getName(), remoteDirectory, localDirectory);
-                                    }catch(Exception e){
+                                    } catch (Exception e) {
                                         System.err.println("Directory could not be downloaded. Received the following error: " + e.getMessage());
                                     }
-                                } else if (newestCommand.equals("mkdir")) {
+                                }else if (newestCommand.equals("mkdir")) {
                                     System.out.println("Please enter directory (must end with / ): ");
                                     String directoryName = myObj.nextLine();
                                     //Calls directory creation function
@@ -229,11 +246,27 @@ public class App {
                                     object.AddToBucket();
 
                                 } else if (newestCommand.equals("adMfl")) {
+
                                     UploadObject object = new UploadObject(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
                                     System.out.println("Enter how many files you want to upload");
                                     int num = myObj.nextInt();
                                     object.AddMultToBucket(num);
-                                } else {
+                                } else if(newestCommand.equals("chper")){
+                                    //User Input
+                                    System.out.println("Please enter file name including filepath: ");
+                                    String targetFilepath = myObj.nextLine();
+                                    System.out.println("Please enter AWS canonical ID: ");
+                                    String permissionID = myObj.nextLine();
+                                    System.out.println("FullControl Read ReadAcp WriteAcp\nPlease enter permission level: ");
+                                    String permissionLevel = myObj.nextLine();
+                                    //Calls file permission changing function
+                                    boolean success = Directory.changePermission(CURRENT_BUCKET.getName(), targetFilepath,permissionID,permissionLevel);
+                                    //Barks failure on cp returning an error
+                                    if (!success) {
+                                        System.out.println("Permission change failed.");
+                                    }
+                                }
+                                else {
                                     System.out.println("Please enter a valid command");
                                 }
                             }
@@ -362,7 +395,6 @@ public class App {
         }
         return true;
     }
-
     private static void downloadDirectory(String bucket_name, String key_prefix, String dir_path) throws IllegalArgumentException{
         if(!S3.doesObjectExist(CURRENT_BUCKET.getName(),key_prefix)){
             throw new IllegalArgumentException("Remote directory does not exist");
