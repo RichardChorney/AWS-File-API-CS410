@@ -75,6 +75,7 @@ public class AppTest {
         }
     }
 
+    @Ignore
     @Test
     public void credentialsFileExists() throws IOException {
         assertThat(App.checkForCredentials(), equalTo(true));

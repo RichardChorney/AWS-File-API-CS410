@@ -1,4 +1,11 @@
 -------------------------------------------------------------------------------
 Test set: edu.pdx.agileteam7.AppTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.047 s - in edu.pdx.agileteam7.AppTest
+Tests run: 10, Failures: 1, Errors: 0, Skipped: 2, Time elapsed: 13.009 s <<< FAILURE! - in edu.pdx.agileteam7.AppTest
+credentialsFileExists(edu.pdx.agileteam7.AppTest)  Time elapsed: 0.005 s  <<< FAILURE!
+java.lang.AssertionError: 
+
+Expected: <true>
+     but: was <false>
+	at edu.pdx.agileteam7.AppTest.credentialsFileExists(AppTest.java:80)
+
