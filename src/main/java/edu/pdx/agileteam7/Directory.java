@@ -23,8 +23,22 @@ public class Directory {
      * @param sourceBucket
      * @param targetDirectory
      */
-    public static boolean mkdir(String sourceBucket, String targetDirectory) {
+    public String AccessKey;
+    public String SecretKey;
+    public String Bucket;
+    public static String FilePath = "";
+    public static String FileName = "";
+
+    public Directory(String key, String secretkey, String BucketName) {
+        this.AccessKey = key;
+        this.SecretKey = secretkey;
+        this.Bucket = BucketName;
+    }
+
+    public boolean mkdir(String sourceBucket, String targetDirectory) {
         try {
+            BasicAWSCredentials awsCreds = new BasicAWSCredentials(this.AccessKey, this.SecretKey);
+            AmazonS3Client s3 = new AmazonS3Client(awsCreds);
             //Uses s3.putObject which normally is used to upload to S3. Placing a null value
             //in the local source directory argument creates a 0 size file. If the file ends
             //with / it will be interpretted by S3 as a directory.
@@ -152,7 +166,7 @@ public class Directory {
             firstTimeThroughLoop = true;
             for (Grant grant : grantsList) {
                 if (firstTimeThroughLoop == true) {
-                    System.out.println("ORIGINAL FILE PERMISSIONS:");
+                    System.out.println("UPDATED FILE PERMISSIONS:");
                     System.out.println("  File Owner ID : Permission ");
                     firstTimeThroughLoop = false;
                 } else

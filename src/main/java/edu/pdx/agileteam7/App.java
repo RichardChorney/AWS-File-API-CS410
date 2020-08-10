@@ -222,7 +222,8 @@ public class App {
                                     System.out.println("Please enter directory (must end with / ): ");
                                     String directoryName = myObj.nextLine();
                                     //Calls directory creation function
-                                    boolean success = Directory.mkdir(CURRENT_BUCKET.getName(), directoryName);
+                                    Directory object = new Directory(AWS_ACCESS_KEYS, AWS_SECRET_KEYS, CURRENT_BUCKET.getName());
+                                    boolean success = object.mkdir(CURRENT_BUCKET.getName(), directoryName);
                                     //Barks failure on function returning an error
                                     if (!success) {
                                         System.out.println("Directory creation failed.");
