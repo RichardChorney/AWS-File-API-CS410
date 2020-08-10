@@ -68,7 +68,7 @@ public class App {
                 "go: Downloads the object to local machine\n" +
                 "gm: Downloads multiple objects to local machine\n" +
                 "gd: Downloads directory to local machine\n" +
-                "chper: change permission for file" +
+                "chper: change permission for file\n" +
                 "delfl: delete file from bucket\n" +
                 "delDirs: delete directories\n" +
                 "rename: rename file\n";
