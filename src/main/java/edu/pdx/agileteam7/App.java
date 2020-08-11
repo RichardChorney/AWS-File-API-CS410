@@ -24,6 +24,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  *
@@ -33,6 +35,7 @@ public class App {
     public static String AWS_SECRET_KEYS = "";
     public static Bucket CURRENT_BUCKET;
     public static AmazonS3 S3;
+    private static Timer timer;
 
     public static void main(String[] args) {
         final String Main_Menu = "\n" +
@@ -130,9 +133,18 @@ public class App {
                     break;
                 } else if (newestCommand.equals("r")) {
                     while (true) {
+                        //Counter length of countdown declared here
+                        Counter IdleCounter = new Counter(10);
+
                         System.out.println(Remote);
                         newestCommand = myObj.nextLine();
+
+                        //Triggers RemindTask function in counter class if time has elapsed
+                        //Otherwise does nothing
+                        IdleCounter.StopClock();
+
                         boolean vglAccessed = false;
+
                         if (newestCommand.equals("b")) {
                             System.out.println("Returned to main menu");
                             break;
@@ -175,7 +187,10 @@ public class App {
                             System.out.println("\nBucket accessed.");
                             while (true) {
                                 System.out.println(bucketMenu);
+                                //Counter length of countdown declared here
+                                Counter IdleCounter2 = new Counter(10);
                                 newestCommand = myObj.nextLine();
+                                IdleCounter2.StopClock();
                                 if (newestCommand.equals("b")) {
                                     CURRENT_BUCKET = null;
                                     break;
