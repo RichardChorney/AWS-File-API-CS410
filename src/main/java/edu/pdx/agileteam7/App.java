@@ -139,9 +139,8 @@ public class App {
                         System.out.println(Remote);
                         newestCommand = myObj.nextLine();
 
-                        //StopClock() is called immediately after an input statement.
-                        //IF counter's countdown reaches 0, then no input will be taken and
-                        //1 will be returned, triggering asking the user for credentials again.
+                        //Triggers RemindTask function in counter class if time has elapsed
+                        //Otherwise does nothing
                         IdleCounter.StopClock();
 
                         boolean vglAccessed = false;
