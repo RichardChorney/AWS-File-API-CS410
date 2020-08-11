@@ -133,9 +133,8 @@ public class App {
                     break;
                 } else if (newestCommand.equals("r")) {
                     while (true) {
-                        //Counter length of countdown delcared here
+                        //Counter length of countdown declared here
                         Counter IdleCounter = new Counter(10);
-                        int timeout = 0;
 
                         System.out.println(Remote);
                         newestCommand = myObj.nextLine();
@@ -143,46 +142,8 @@ public class App {
                         //StopClock() is called immediately after an input statement.
                         //IF counter's countdown reaches 0, then no input will be taken and
                         //1 will be returned, triggering asking the user for credentials again.
-                        timeout = IdleCounter.StopClock();
+                        IdleCounter.StopClock();
 
-                        if(timeout == 1){
-                            credentialsUsed = false;
-                            System.out.println("Reenter Credentials");
-
-                            //Tries to use credentials.txt first.
-                            if (credFile.exists()) {
-                                System.out.println("Credentials located.\nDo you want to use credentials provided in 'credentials.txt'? (yes/no)");
-                                newestCommand = myObj.nextLine();
-                                if (newestCommand.toLowerCase().equals("yes")) {
-                                    try {
-                                        checkForCredentials();
-                                        credentialsUsed = true;
-                                    } catch (IOException e) {
-                                        System.out.println("Unable to retrieve credentials");
-                                    }
-                                } else {
-                                    System.out.println("Credentials file not used..");
-                                }
-                            }
-
-                            //Asks for manual crednetials as last resort
-                            if (!credentialsUsed) {
-                                System.out.println("Please enter access key: ");
-                                AWS_ACCESS_KEYS = myObj.nextLine();
-                                System.out.println("Please enter secret key: ");
-                                AWS_SECRET_KEYS = myObj.nextLine();
-                            }
-
-                            // Checks for valid AWS credentials
-                            try {
-                                S3 = validateCredentials();
-                            } catch (Exception e) {
-                                System.out.println("Login Failed: Please enter valid Access and Secret Keys");
-                                System.exit(1);
-                            }
-
-                            System.out.println("Login Successful");
-                        }
                         boolean vglAccessed = false;
 
                         if (newestCommand.equals("b")) {
@@ -227,7 +188,10 @@ public class App {
                             System.out.println("\nBucket accessed.");
                             while (true) {
                                 System.out.println(bucketMenu);
+                                //Counter length of countdown declared here
+                                Counter IdleCounter2 = new Counter(10);
                                 newestCommand = myObj.nextLine();
+                                IdleCounter2.StopClock();
                                 if (newestCommand.equals("b")) {
                                     CURRENT_BUCKET = null;
                                     break;

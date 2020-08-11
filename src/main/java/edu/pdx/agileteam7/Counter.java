@@ -18,8 +18,8 @@ public class Counter {
 
     class RemindTask extends TimerTask {
         public void run() {
-            System.out.println("Idle Timeout: Reenter AWS Credentials after next command.");
-   //         System.exit(1);
+            System.out.println("Idle Timeout: Logging Out...");
+            System.exit(1);
 
         }
     }
