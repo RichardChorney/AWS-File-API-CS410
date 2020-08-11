@@ -24,6 +24,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.Scanner;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  *
@@ -33,6 +35,7 @@ public class App {
     public static String AWS_SECRET_KEYS = "";
     public static Bucket CURRENT_BUCKET;
     public static AmazonS3 S3;
+    private static Timer timer;
 
     public static void main(String[] args) {
         final String Main_Menu = "\n" +
@@ -130,9 +133,58 @@ public class App {
                     break;
                 } else if (newestCommand.equals("r")) {
                     while (true) {
+                        //Counter length of countdown delcared here
+                        Counter IdleCounter = new Counter(10);
+                        int timeout = 0;
+
                         System.out.println(Remote);
                         newestCommand = myObj.nextLine();
+
+                        //StopClock() is called immediately after an input statement.
+                        //IF counter's countdown reaches 0, then no input will be taken and
+                        //1 will be returned, triggering asking the user for credentials again.
+                        timeout = IdleCounter.StopClock();
+
+                        if(timeout == 1){
+                            credentialsUsed = false;
+                            System.out.println("Reenter Credentials");
+
+                            //Tries to use credentials.txt first.
+                            if (credFile.exists()) {
+                                System.out.println("Credentials located.\nDo you want to use credentials provided in 'credentials.txt'? (yes/no)");
+                                newestCommand = myObj.nextLine();
+                                if (newestCommand.toLowerCase().equals("yes")) {
+                                    try {
+                                        checkForCredentials();
+                                        credentialsUsed = true;
+                                    } catch (IOException e) {
+                                        System.out.println("Unable to retrieve credentials");
+                                    }
+                                } else {
+                                    System.out.println("Credentials file not used..");
+                                }
+                            }
+
+                            //Asks for manual crednetials as last resort
+                            if (!credentialsUsed) {
+                                System.out.println("Please enter access key: ");
+                                AWS_ACCESS_KEYS = myObj.nextLine();
+                                System.out.println("Please enter secret key: ");
+                                AWS_SECRET_KEYS = myObj.nextLine();
+                            }
+
+                            // Checks for valid AWS credentials
+                            try {
+                                S3 = validateCredentials();
+                            } catch (Exception e) {
+                                System.out.println("Login Failed: Please enter valid Access and Secret Keys");
+                                System.exit(1);
+                            }
+
+                            System.out.println("Login Successful");
+                        }
                         boolean vglAccessed = false;
+
                         if (newestCommand.equals("b")) {
                             System.out.println("Returned to main menu");
                             break;

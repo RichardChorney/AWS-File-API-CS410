@@ -428,6 +428,15 @@ public class AppTest {
         assertEquals(1, 1);
     }
 
+    //This test sets a counter to instantly countdown. The countdown return value is verified
+    //for the expected return value 1.
+    @Test
+    public void testIdleTimeout() throws Exception {
+        Counter IdleCounter = new Counter(0);
+
+        //If the directory exists match will be 1 and test passes.
+        assertEquals(1,IdleCounter.StopClock());
+    }
     public static AmazonS3 validateCredentials() throws Exception {
   //      BasicAWSCredentials awsCreds = new BasicAWSCredentials(App.AWS_ACCESS_KEYS, App.AWS_SECRET_KEYS);
         BasicAWSCredentials awsCreds = new BasicAWSCredentials("AKIATB55VFIM6ETVL7AA", "wPVnQ4S5RUuoZoZTOhFrOZnwyUu830/hck04oqD4");
